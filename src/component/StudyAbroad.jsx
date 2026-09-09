@@ -1,8 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link, useLoaderData } from 'react-router';
 
 
 const StudyAbroad = () => {
+
+  const user = useLoaderData();
+  console.log('users are : = ',user);
+
   const cards = [
     {
       id: 1,

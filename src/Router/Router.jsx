@@ -26,7 +26,7 @@ const router = createBrowserRouter([
                 Component: Home
             },
             {
-                path: '/englishVocub',
+                path: '/english-vocab',
                 Component: EnglishVocub
             },
             {
@@ -38,7 +38,8 @@ const router = createBrowserRouter([
                 Component: HSC
             },
             {
-                path: '/studyAbroad',
+                path: '/study-abroad',
+                loader: () => fetch("https://astembd-server.vercel.app/users"),
                 Component: StudyAbroad
             },
             {
@@ -54,11 +55,13 @@ const router = createBrowserRouter([
                 Component: Registration
             },
             {
-                path: '/vocab/everydayWord',
+                path: "/english-vocab/everyday-word",
+                loader: ()=> fetch("https://astembd-server.vercel.app/sections"),
                 Component: EverydayWords
             },
             {
-                path: '/everydayWordSectionDetail',
+                path: '/english-vocab/everyday-Word/section/:sectionNumber',
+                loader: ({ params }) => fetch(`https://astembd-server.vercel.app/everydayWordSectionDetail/${params.sectionNumber}`),
                 Component: EverydayWordSectionDetail
             },
             {
