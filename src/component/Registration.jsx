@@ -53,10 +53,10 @@ const Registration = () => {
           timer: 1500
         });
         navigate('/');
-        console.log(result.user);
+        // console.log(result.user);
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
       });
   };
 

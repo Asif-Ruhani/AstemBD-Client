@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import useAuth from '../Hooks/useAuth';
 import Swal from 'sweetalert2';
 
 const Login = () => {
-  const { userSignIn, userLoginWithGoole, resetPassword, loading, user } = useAuth();
+  const { userSignIn, userLoginWithGoole, resetPassword } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   // Initialize react-hook-form
   const {
@@ -34,6 +35,7 @@ const Login = () => {
           showConfirmButton: false,
           timer: 1500,
         });
+        navigate('/');
       })
       .catch((error) => {
         Swal.fire({
@@ -54,6 +56,7 @@ const Login = () => {
           showConfirmButton: false,
           timer: 1500,
         });
+        navigate('/');
         console.log(result.user);
       })
       .catch(error => {
@@ -290,7 +293,7 @@ const Login = () => {
             {/* Bottom Prompt */}
             <p className="text-center mt-6 text-xs text-slate-600 dark:text-zinc-400">
               Don't have an account?{' '}
-              <Link to="/register" className="font-bold text-slate-900 dark:text-white hover:underline">
+              <Link to="/registration" className="font-bold text-slate-900 dark:text-white hover:underline">
                 Create an account
               </Link>
             </p>

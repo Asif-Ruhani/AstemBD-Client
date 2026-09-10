@@ -8,7 +8,7 @@ const CsrfProvider = ({ children }) => {
     const getCsrfToken = async () => {
         try {
             const response = await fetch(
-                'http://localhost:3000/auth/csrf-token',
+                'https://astem-bd-server.vercel.app/auth/csrf-token',
                 {
                     credentials: 'include'
                 }

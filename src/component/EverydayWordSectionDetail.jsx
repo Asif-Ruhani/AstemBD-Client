@@ -665,7 +665,7 @@ const EverydayWordSectionDetail = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:3000/everydayWordSectionDetail/${sectionNumber}`,
+          `https://astem-bd-server.vercel.app/everydayWordSectionDetail/${sectionNumber}`,
           {
             credentials: 'include',
             signal: controller.signal,

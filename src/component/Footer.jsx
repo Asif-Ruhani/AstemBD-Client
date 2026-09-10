@@ -63,10 +63,10 @@ const Footer = () => {
           <div className="col-span-2 space-y-5">
             <Link to="/" className="inline-flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl bg-white text-slate-900 flex items-center justify-center text-xl font-black shadow-md group-hover:scale-105 transition-transform">
-                <span>E</span>
+                <span>A</span>
               </div>
               <span className="text-2xl font-black tracking-tight text-white">
-                EDUPATH<span className="text-primary font-bold">.</span>
+                ASTEMBD<span className="text-white font-bold">.</span>
               </span>
             </Link>
 
@@ -234,7 +234,7 @@ const Footer = () => {
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-400">
           
           <p className="text-center md:text-left">
-            © {new Date().getFullYear()} <span className="text-white font-bold">EduPath Inc.</span> All rights reserved. Standardized Academic System.
+            © {new Date().getFullYear()} <span className="text-white font-bold">AstemBD Inc.</span> All rights reserved. Standardized Academic System.
           </p>
 
           {/* Developer Tribute */}

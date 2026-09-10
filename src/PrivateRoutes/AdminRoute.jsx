@@ -1,11 +1,12 @@
-import React from 'react';
+import React  from 'react';
 import { Navigate, useLocation } from 'react-router';
 import useAuth from '../Hooks/useAuth';
 
-const PrivateRoutes = ({ children }) => {
+const AdminRoute = ({ children }) => {
 
     const { authStatus } = useAuth();
     const location = useLocation();
+
 
     if (authStatus === 'loading') {
         return (
@@ -25,9 +26,18 @@ const PrivateRoutes = ({ children }) => {
         );
     }
 
-    if (authStatus === 'user' || authStatus === 'admin') {
+    if (authStatus === 'user') {
+        return (
+            <Navigate
+                to="/"
+                replace
+            />
+        );
+    }
+
+    if (authStatus === 'admin') {
         return children;
     }
 };
 
-export default PrivateRoutes;
+export default AdminRoute;

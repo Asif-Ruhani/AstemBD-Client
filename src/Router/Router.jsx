@@ -12,6 +12,7 @@ import EverydayWords from "../component/EverydayWords"
 import EverydayWordSectionDetail from "../component/EverydayWordSectionDetail"
 import ComingSoon from "../component/ComingSoon"
 import PrivateRoutes from "../PrivateRoutes/PrivateRoutes"
+import AdminRoute from "../PrivateRoutes/AdminRoute"
 
 
 
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/study-abroad',
-                loader: () => fetch("http://localhost:3000/users"),
+                loader: () => fetch("https://astem-bd-server.vercel.app/users"),
                 Component: StudyAbroad
             },
             {
@@ -53,10 +54,12 @@ const router = createBrowserRouter([
             {
                 path: "/english-vocab/everyday-word",
                 element: <PrivateRoutes><EverydayWords></EverydayWords></PrivateRoutes>
+                // element: <AdminRoute><EverydayWords></EverydayWords></AdminRoute>
             },
             {
                 path: '/english-vocab/everyday-Word/section/:sectionNumber',
                 element: <PrivateRoutes> <EverydayWordSectionDetail /> </PrivateRoutes>
+                // element: <AdminRoute><EverydayWordSectionDetail></EverydayWordSectionDetail></AdminRoute>
                 
             },
             {

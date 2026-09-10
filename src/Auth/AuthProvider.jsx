@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { AuthContext } from './AuthContext'
 import { createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../Firebase/Firebase.config'
@@ -12,44 +12,187 @@ const AuthProvider = ({ children }) => {
     const { csrfToken, getCsrfToken } = useCsrf();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [authStatus, setAuthStatus] = useState('loading');
+    const creatingServerSession = useRef(false);
+
 
     useEffect(() => {
 
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setLoading(false);
-        });
+        const unsubscribe = onAuthStateChanged(
+            auth,
+            (currentUser) => {
+
+                setUser(currentUser);
+
+                if (!currentUser) {
+                    setAuthStatus('not-authenticated');
+                    setLoading(false);
+                    return;
+                }
+
+                // During login/registration, wait for
+                // createServerSession() to finish.
+                if (creatingServerSession.current) {
+                    setLoading(false);
+                    return;
+                }
+
+                setLoading(false);
+            }
+        );
 
         return () => unsubscribe();
 
     }, []);
 
 
+    const checkAuthStatus = async () => {
+
+        try {
+
+            const response = await fetch(
+                'https://astem-bd-server.vercel.app/auth/me',
+                {
+                    method: 'GET',
+                    credentials: 'include'
+                }
+            );
+
+            if (!response.ok) {
+                setAuthStatus('not-authenticated');
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.isAdmin === true) {
+                setAuthStatus('admin');
+            } else {
+                setAuthStatus('user');
+            }
+
+        } catch (error) {
+
+            console.error(
+                'Authentication status check failed:',
+                error
+            );
+
+            setAuthStatus('not-authenticated');
+        }
+    };
+
+    useEffect(() => {
+
+        if (loading) {
+            return;
+        }
+
+        if (!user) {
+            setAuthStatus('not-authenticated');
+            return;
+        }
+
+        if (creatingServerSession.current) {
+            return;
+        }
+
+        checkAuthStatus();
+
+    }, [user, loading]);
+
+
     // user registration
     const userRegistration = async (email, password) => {
-        const result = await createUserWithEmailAndPassword(auth, email, password);
 
-        await createServerSession(result.user);
+        try {
 
-        return result;
+            creatingServerSession.current = true;
+
+            const result =
+                await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+            await createServerSession(result.user);
+
+            creatingServerSession.current = false;
+
+            return result;
+
+        } catch (error) {
+
+            creatingServerSession.current = false;
+
+            throw error;
+        }
     };
 
     // user login / sign in
+    // const userSignIn = async (email, password) => {
+    //     const result = await signInWithEmailAndPassword(auth, email, password);
+
+    //     await createServerSession(result.user);
+
+    //     return result;
+    // };
     const userSignIn = async (email, password) => {
-        const result = await signInWithEmailAndPassword(auth, email, password);
 
-        await createServerSession(result.user);
+        try {
 
-        return result;
+            creatingServerSession.current = true;
+
+            const result = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            await createServerSession(result.user);
+
+            creatingServerSession.current = false;
+
+            return result;
+
+        } catch (error) {
+
+            creatingServerSession.current = false;
+
+            console.error(
+                "Firebase email login error:",
+                error
+            );
+
+            throw error;
+        }
     };
 
     // user login with google
     const userLoginWithGoole = async () => {
-        const result = await signInWithPopup(auth, googleProvider);
 
-        await createServerSession(result.user);
+        try {
 
-        return result;
+            creatingServerSession.current = true;
+
+            const result = await signInWithPopup(
+                auth,
+                googleProvider
+            );
+
+            await createServerSession(result.user);
+
+            creatingServerSession.current = false;
+
+            return result;
+
+        } catch (error) {
+
+            creatingServerSession.current = false;
+
+            throw error;
+        }
     };
 
 
@@ -59,6 +202,9 @@ const AuthProvider = ({ children }) => {
         const token = csrfToken || await getCsrfToken();
 
         const idToken = await firebaseUser.getIdToken();
+        // console.log("Creating server session...");
+        // console.log("CSRF token:", token);
+        // console.log("Sending server session request");
 
         const response = await fetch(
             'http://localhost:3000/auth/session',
@@ -80,7 +226,7 @@ const AuthProvider = ({ children }) => {
             );
         }
 
-        console.log('Server session response:', data);
+        await checkAuthStatus();
 
         return data;
     };
@@ -95,25 +241,43 @@ const AuthProvider = ({ children }) => {
     //user logout
     const userLogout = async () => {
 
-        // Sign out from Firebase client
-        await signOut(auth);
+        try {
 
-        // Clear the server-side session cookie
-        const response = await fetch(
-            'http://localhost:3000/auth/logout',
-            {
-                method: 'POST',
-                credentials: 'include'
+            // Get CSRF token
+            const token = csrfToken || await getCsrfToken();
+
+            // First clear the server-side session cookie
+            const response = await fetch(
+                'http://localhost:3000/auth/logout',
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'X-CSRF-Token': token
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || 'Server logout failed'
+                );
             }
-        );
 
-        const data = await response.json();
+            // After server session is cleared,
+            // sign out from Firebase client
+            await signOut(auth);
 
-        if (!response.ok) {
-            throw new Error(data.message || 'Logout failed');
+            return data;
+
+        } catch (error) {
+
+            console.error('Logout failed:', error);
+
+            throw error;
         }
-
-        return data;
     };
 
 
@@ -121,6 +285,7 @@ const AuthProvider = ({ children }) => {
         userRegistration,
         userSignIn,
         userLoginWithGoole,
+        authStatus,
         resetPassword,
         userLogout,
         user,

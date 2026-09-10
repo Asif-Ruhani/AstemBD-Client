@@ -9,7 +9,8 @@ import Swal from 'sweetalert2';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const { user, loading, userLogout } = useAuth();
+  const { user, authStatus, userLogout } = useAuth();
+  
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,10 +62,10 @@ const Navbar = () => {
           {/* LEFT: Brand Logo (Always on the left on all devices) */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 text-xl font-black shadow-sm group-hover:scale-105 transition-transform">
-              <span>E</span>
+              <span>A</span>
             </div>
             <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-              EDUPATH<span className="text-primary font-bold">.</span>
+              ASTEMBD<span className="text-primary font-bold">.</span>
             </span>
           </Link>
 

@@ -14,7 +14,7 @@ const EverydayWords = () => {
       try {
 
         const response = await fetch(
-          'http://localhost:3000/sections',
+          'https://astem-bd-server.vercel.app/sections',
           {
             credentials: 'include'
           }
