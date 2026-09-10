@@ -255,13 +255,15 @@ import useAuth from '../Hooks/useAuth';
 import Swal from 'sweetalert2';
 
 const Login = () => {
-  const { userSignIn, userLoginWithGoole } = useAuth();
+  const { userSignIn, userLoginWithGoole, resetPassword } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   // Initialize react-hook-form
   const {
     register,
     handleSubmit,
+    trigger,
+    getValues,
     formState: { errors }
   } = useForm({
     mode: 'onTouched',
@@ -276,7 +278,7 @@ const Login = () => {
     userSignIn(data.email, data.password)
       .then((result) => {
         Swal.fire({
-          position: "top-end",
+          position: "top-center",
           icon: "success",
           title: "Successfully Logged in",
           showConfirmButton: false,
@@ -294,19 +296,44 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     userLoginWithGoole()
-    .then((result)=>{
-      Swal.fire({
-          position: "top-end",
+      .then((result) => {
+        Swal.fire({
+          position: "top-center",
           icon: "success",
           title: "Successfully Logged in",
           showConfirmButton: false,
           timer: 1500,
         });
         console.log(result.user);
-    })
-    .catch(error=>{
-      console.log(error);
-    })
+      })
+      .catch(error => {
+        console.log(error);
+      })
+  };
+
+
+  const handleForgotPassword = async () => {
+    // Validate the email field specifically
+    const isEmailValid = await trigger('email');
+
+    if (!isEmailValid) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Email Required',
+        text: 'Please enter a valid email address first to reset your password.',
+      });
+      return;
+    }
+
+    const email = getValues('email');
+    // console.log('Sending password reset email to:', email);
+    resetPassword(email)
+      .then(() => {
+        Swal.fire("Check your email", "Password reset link has been sent!", "success");
+      })
+      .catch((error) => {
+        Swal.fire("Error", error.message, "error");
+      });
   };
 
   return (
@@ -426,11 +453,10 @@ const Login = () => {
                         message: 'Please enter a valid email address containing @ and domain',
                       },
                     })}
-                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${
-                      errors.email
-                        ? 'border-rose-500 focus:ring-rose-500'
-                        : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
-                    }`}
+                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.email
+                      ? 'border-rose-500 focus:ring-rose-500'
+                      : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
+                      }`}
                   />
                 </div>
                 {errors.email && (
@@ -446,12 +472,13 @@ const Login = () => {
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400">
                     Password
                   </label>
-                  <Link
-                    to="/forgot-password"
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
                     className="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
                   >
                     Forgot password?
-                  </Link>
+                  </button>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -465,11 +492,10 @@ const Login = () => {
                     {...register('password', {
                       required: 'Password is required',
                     })}
-                    className={`w-full pl-10 pr-12 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${
-                      errors.password
-                        ? 'border-rose-500 focus:ring-rose-500'
-                        : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
-                    }`}
+                    className={`w-full pl-10 pr-12 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.password
+                      ? 'border-rose-500 focus:ring-rose-500'
+                      : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
+                      }`}
                   />
                   <button
                     type="button"
