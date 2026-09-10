@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { AuthContext } from './AuthContext'
-import { createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from 'firebase/auth'
+import { createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../Firebase/Firebase.config'
 import useCsrf from '../Hooks/useCsrf'
 
@@ -94,10 +94,18 @@ const AuthProvider = ({ children }) => {
 
     //user logout
     const userLogout = async () => {
-        const response = await fetch('http://localhost:3000/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-        });
+
+        // Sign out from Firebase client
+        await signOut(auth);
+
+        // Clear the server-side session cookie
+        const response = await fetch(
+            'http://localhost:3000/auth/logout',
+            {
+                method: 'POST',
+                credentials: 'include'
+            }
+        );
 
         const data = await response.json();
 

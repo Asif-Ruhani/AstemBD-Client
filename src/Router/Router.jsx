@@ -5,14 +5,13 @@ import EnglishVocub from "../component/EnglishVocub"
 import HSC from "../component/HSC"
 import StudyAbroad from "../component/StudyAbroad"
 import SSC_Component from "../component/SSC_Component"
-import PresentationBoard from "../component/PresentationBoard"
 import { path } from "framer-motion/client"
 import Login from "../component/Login"
 import Registration from "../component/Registration"
 import EverydayWords from "../component/EverydayWords"
 import EverydayWordSectionDetail from "../component/EverydayWordSectionDetail"
 import ComingSoon from "../component/ComingSoon"
-import SimpleButton from "../component/SimpleButton"
+import PrivateRoutes from "../PrivateRoutes/PrivateRoutes"
 
 
 
@@ -32,7 +31,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/ssc',
-                Component: SSC_Component  
+                Component: SSC_Component
             },
             {
                 path: '/hsc',
@@ -44,35 +43,26 @@ const router = createBrowserRouter([
                 Component: StudyAbroad
             },
             {
-                path:'/presentationBoard',
-                Component: PresentationBoard
-            },
-            {
-                path:'/login',
+                path: '/login',
                 Component: Login
             },
             {
-                path:'/registration',
+                path: '/registration',
                 Component: Registration
             },
             {
                 path: "/english-vocab/everyday-word",
-                loader: ()=> fetch("http://localhost:3000/sections"),
-                Component: EverydayWords
+                element: <PrivateRoutes><EverydayWords></EverydayWords></PrivateRoutes>
             },
             {
                 path: '/english-vocab/everyday-Word/section/:sectionNumber',
-                loader: ({ params }) => fetch(`http://localhost:3000/everydayWordSectionDetail/${params.sectionNumber}`),
-                Component: EverydayWordSectionDetail
+                element: <PrivateRoutes> <EverydayWordSectionDetail /> </PrivateRoutes>
+                
             },
             {
-                path:'/ssc/general-math',
+                path: '/ssc/general-math',
                 Component: ComingSoon
             },
-            {
-                path: '/logout',
-                Component: SimpleButton
-            }
         ]
     }
 ])

@@ -5,7 +5,7 @@ import useAuth from '../Hooks/useAuth';
 import Swal from 'sweetalert2';
 
 const Login = () => {
-  const { userSignIn, userLoginWithGoole, resetPassword } = useAuth();
+  const { userSignIn, userLoginWithGoole, resetPassword, loading, user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   // Initialize react-hook-form

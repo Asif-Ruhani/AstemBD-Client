@@ -1,12 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { LiaExternalLinkSquareAltSolid } from 'react-icons/lia';
-import { Link, useLoaderData } from 'react-router';
+import { Link } from 'react-router';
 
 const EverydayWords = () => {
-  const sections = useLoaderData();
   const [activeTab, setActiveTab] = useState('vocab'); // 'vocab' or 'grammar'
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [sections, setSection] = useState([]);
+
+  useEffect(() => {
+
+    const fetchSections = async () => {
+
+      try {
+
+        const response = await fetch(
+          'http://localhost:3000/sections',
+          {
+            credentials: 'include'
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch sections');
+        }
+
+        const data = await response.json();
+
+        setSection(data);
+
+      } catch (error) {
+
+        console.error(
+          'Error fetching sections:',
+          error
+        );
+
+      }
+    };
+
+    fetchSections();
+
+  }, []);
 
   const extraCategories = [
     { name: "Hospital & Medical", icon: "🏥" },
