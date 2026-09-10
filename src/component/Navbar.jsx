@@ -21,6 +21,7 @@ const Navbar = () => {
     { name: 'SSC', path: '/ssc' },
     { name: 'HSC', path: '/hsc' },
     { name: 'Study Abroad', path: '/study-abroad' },
+    { name: 'Logout', path: '/logout' },
     { name: 'Presentation Board', path: '/presentationBoard' },
   ];
 

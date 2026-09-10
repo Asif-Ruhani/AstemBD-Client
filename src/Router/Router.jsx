@@ -12,6 +12,7 @@ import Registration from "../component/Registration"
 import EverydayWords from "../component/EverydayWords"
 import EverydayWordSectionDetail from "../component/EverydayWordSectionDetail"
 import ComingSoon from "../component/ComingSoon"
+import SimpleButton from "../component/SimpleButton"
 
 
 
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/study-abroad',
-                loader: () => fetch("https://astembd-server.vercel.app/users"),
+                loader: () => fetch("http://localhost:3000/users"),
                 Component: StudyAbroad
             },
             {
@@ -56,17 +57,21 @@ const router = createBrowserRouter([
             },
             {
                 path: "/english-vocab/everyday-word",
-                loader: ()=> fetch("https://astembd-server.vercel.app/sections"),
+                loader: ()=> fetch("http://localhost:3000/sections"),
                 Component: EverydayWords
             },
             {
                 path: '/english-vocab/everyday-Word/section/:sectionNumber',
-                loader: ({ params }) => fetch(`https://astembd-server.vercel.app/everydayWordSectionDetail/${params.sectionNumber}`),
+                loader: ({ params }) => fetch(`http://localhost:3000/everydayWordSectionDetail/${params.sectionNumber}`),
                 Component: EverydayWordSectionDetail
             },
             {
                 path:'/ssc/general-math',
                 Component: ComingSoon
+            },
+            {
+                path: '/logout',
+                Component: SimpleButton
             }
         ]
     }
