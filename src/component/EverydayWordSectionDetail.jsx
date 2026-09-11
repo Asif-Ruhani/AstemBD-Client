@@ -648,6 +648,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useLoaderData, useParams } from "react-router";
+import useAuth from "../Hooks/useAuth";
 
 const EverydayWordSectionDetail = () => {
   const { sectionNumber } = useParams();
@@ -658,16 +659,24 @@ const EverydayWordSectionDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isPageHidden, setIsPageHidden] = useState(false);
 
+  const { user, loading: authLoading } = useAuth();
+
   useEffect(() => {
+    if (authLoading || !user) return;
+
     const controller = new AbortController();
 
     const fetchSectionDetails = async () => {
       setLoading(true);
       try {
+        const token = await user.getIdToken();
+
         const response = await fetch(
-          `https://astem-bd-server.vercel.app/everydayWordSectionDetail/${sectionNumber}`,
+          `https://astembd-server.onrender.com/everydayWordSectionDetail/${sectionNumber}`,
           {
-            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
             signal: controller.signal,
           }
         );
@@ -692,7 +701,7 @@ const EverydayWordSectionDetail = () => {
     fetchSectionDetails();
 
     return () => controller.abort();
-  }, [sectionNumber]);
+  }, [sectionNumber, user, authLoading]);
 
   // ==========================================
   // PREMIUM CONTENT PROTECTION

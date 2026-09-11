@@ -5,15 +5,15 @@ import App from './App.jsx'
 import AuthProvider from './Auth/AuthProvider.jsx'
 import { RouterProvider } from 'react-router'
 import router from './Router/Router.jsx'
-import CsrfProvider from './Auth/CsrfProvider.jsx'
+// import CsrfProvider from './Auth/CsrfProvider.jsx'
 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <CsrfProvider>
+    {/* <CsrfProvider> */}
       <AuthProvider>
         <RouterProvider router={router}></RouterProvider>
       </AuthProvider>
-    </CsrfProvider>
+    {/* </CsrfProvider> */}
   </StrictMode>,
 )

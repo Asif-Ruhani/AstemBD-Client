@@ -1,51 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import { CsrfContext } from './CsrfContext';
+// import React, { useEffect, useState } from 'react';
+// import { CsrfContext } from './CsrfContext';
 
-const CsrfProvider = ({ children }) => {
+// const CsrfProvider = ({ children }) => {
 
-    const [csrfToken, setCsrfToken] = useState(null);
+//     const [csrfToken, setCsrfToken] = useState(null);
 
-    const getCsrfToken = async () => {
-        try {
-            const response = await fetch(
-                'https://astem-bd-server.vercel.app/auth/csrf-token',
-                {
-                    credentials: 'include'
-                }
-            );
+//     const getCsrfToken = async () => {
+//         try {
+//             const response = await fetch(
+//                 // 'https://astem-bd-server.vercel.app/auth/csrf-token',
+//                 // 'http://localhost:3000/auth/csrf-token',
+//                 'https://astembd-server.onrender.com/auth/csrf-token',
+//                 {
+//                     credentials: 'include'
+//                 }
+//             );
 
-            const data = await response.json();
+//             const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(
-                    data.message || 'Failed to get CSRF token'
-                );
-            }
+//             if (!response.ok) {
+//                 throw new Error(
+//                     data.message || 'Failed to get CSRF token'
+//                 );
+//             }
 
-            setCsrfToken(data.csrfToken);
+//             setCsrfToken(data.csrfToken);
 
-            return data.csrfToken;
+//             return data.csrfToken;
 
-        } catch (error) {
-            console.error('CSRF token error:', error);
-            throw error;
-        }
-    };
+//         } catch (error) {
+//             console.error('CSRF token error:', error);
+//             throw error;
+//         }
+//     };
 
-    useEffect(() => {
-        getCsrfToken();
-    }, []);
+//     useEffect(() => {
+//         getCsrfToken();
+//     }, []);
 
-    return (
-        <CsrfContext.Provider
-            value={{
-                csrfToken,
-                getCsrfToken
-            }}
-        >
-            {children}
-        </CsrfContext.Provider>
-    );
-};
+//     return (
+//         <CsrfContext.Provider
+//             value={{
+//                 csrfToken,
+//                 getCsrfToken
+//             }}
+//         >
+//             {children}
+//         </CsrfContext.Provider>
+//     );
+// };
 
-export default CsrfProvider;
+// export default CsrfProvider;

@@ -26,6 +26,7 @@ const Navbar = () => {
     { name: 'SSC', path: '/ssc' },
     { name: 'HSC', path: '/hsc' },
     { name: 'Study Abroad', path: '/study-abroad' },
+    { name: 'Users', path: '/users' },
   ];
 
   const handleSignOut = () => {

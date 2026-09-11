@@ -13,6 +13,7 @@ import EverydayWordSectionDetail from "../component/EverydayWordSectionDetail"
 import ComingSoon from "../component/ComingSoon"
 import PrivateRoutes from "../PrivateRoutes/PrivateRoutes"
 import AdminRoute from "../PrivateRoutes/AdminRoute"
+import UserManagement from "../component/UserManagement"
 
 
 
@@ -40,7 +41,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/study-abroad',
-                loader: () => fetch("https://astem-bd-server.vercel.app/users"),
+                // loader: () => fetch("https://astem-bd-server.vercel.app/users"),
                 Component: StudyAbroad
             },
             {
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
                 path: '/ssc/general-math',
                 Component: ComingSoon
             },
+            {
+                path: '/users',
+                element: <PrivateRoutes><UserManagement></UserManagement></PrivateRoutes>
+            }
         ]
     }
 ])

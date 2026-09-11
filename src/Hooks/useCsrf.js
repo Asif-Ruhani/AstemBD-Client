@@ -1,8 +1,8 @@
-import { useContext } from 'react';
-import { CsrfContext } from '../Auth/CsrfContext';
+// import { useContext } from 'react';
+// import { CsrfContext } from '../Auth/CsrfContext';
 
-const useCsrf = () => {
-    return useContext(CsrfContext);
-};
+// const useCsrf = () => {
+//     return useContext(CsrfContext);
+// };
 
-export default useCsrf;
+// export default useCsrf;

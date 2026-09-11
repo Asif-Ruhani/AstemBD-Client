@@ -1,46 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { LiaExternalLinkSquareAltSolid } from 'react-icons/lia';
 import { Link } from 'react-router';
+import useAuth from '../Hooks/useAuth';
 
 const EverydayWords = () => {
   const [activeTab, setActiveTab] = useState('vocab'); // 'vocab' or 'grammar'
   const [searchQuery, setSearchQuery] = useState('');
   const [sections, setSection] = useState([]);
 
+  const { user, loading } = useAuth();
+
   useEffect(() => {
+    // Wait until Firebase finishes checking the session and ensures a user is logged in
+    if (loading || !user) return;
 
     const fetchSections = async () => {
-
       try {
+        const token = await user.getIdToken();
 
         const response = await fetch(
-          'https://astem-bd-server.vercel.app/sections',
+          'https://astembd-server.onrender.com/sections',
           {
-            credentials: 'include'
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
           }
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch sections');
+          throw new Error(`Failed to fetch sections: ${response.status}`);
         }
 
         const data = await response.json();
-
         setSection(data);
-
       } catch (error) {
-
-        console.error(
-          'Error fetching sections:',
-          error
-        );
-
+        console.error('Error fetching sections:', error);
       }
     };
 
     fetchSections();
-
-  }, []);
+  }, [user, loading]);
 
   const extraCategories = [
     { name: "Hospital & Medical", icon: "🏥" },
