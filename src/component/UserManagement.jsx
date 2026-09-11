@@ -62,7 +62,8 @@ const UserManagement = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update status');
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.message || 'Failed to update status');
             }
 
             // Optimistically update local state
@@ -79,7 +80,7 @@ const UserManagement = () => {
                 timer: 2000
             });
         } catch (error) {
-            console.error(error);
+            console.error('Status toggle error:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Update failed',
@@ -100,7 +101,6 @@ const UserManagement = () => {
             const email = (u.email || '').toLowerCase();
             const phone = (u.phoneNumber || u.phone || '').toLowerCase();
             const status = (u.status || 'active').toLowerCase();
-            const payment = (u.paymentStatus || 'null').toLowerCase();
             const track = (u.targetExam || '').toLowerCase();
 
             return (
@@ -108,7 +108,6 @@ const UserManagement = () => {
                 email.includes(q) ||
                 phone.includes(q) ||
                 status.includes(q) ||
-                payment.includes(q) ||
                 track.includes(q)
             );
         });
@@ -125,7 +124,7 @@ const UserManagement = () => {
                             User Directory
                         </h1>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1">
-                            Manage student accounts, fee records, and access permissions.
+                            Manage student accounts and account active/blocked status.
                         </p>
                     </div>
 
@@ -153,7 +152,6 @@ const UserManagement = () => {
                             <thead>
                                 <tr className="border-b border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                                     <th className="py-4 px-6">User Profile & Metadata</th>
-                                    <th className="py-4 px-6 text-center">Payment Status</th>
                                     <th className="py-4 px-6 text-right">Access Control</th>
                                 </tr>
                             </thead>
@@ -161,14 +159,14 @@ const UserManagement = () => {
                             <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/60 text-sm">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={3} className="py-12 text-center text-slate-400 dark:text-zinc-500">
-                                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-300 border-t-slate-900 dark:border-zinc-700 dark:t-white mb-2"></div>
+                                        <td colSpan={2} className="py-12 text-center text-slate-400 dark:text-zinc-500">
+                                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-300 border-t-slate-900 dark:border-zinc-700 dark:border-t-white mb-2" />
                                             <p className="text-xs">Loading directory...</p>
                                         </td>
                                     </tr>
                                 ) : filteredUsers.length === 0 ? (
                                     <tr>
-                                        <td colSpan={3} className="py-12 text-center text-slate-400 dark:text-zinc-500">
+                                        <td colSpan={2} className="py-12 text-center text-slate-400 dark:text-zinc-500">
                                             No matching records found.
                                         </td>
                                     </tr>
@@ -182,7 +180,7 @@ const UserManagement = () => {
                                                 key={u.uid}
                                                 className="hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 transition-colors duration-150"
                                             >
-                                                {/* Column 1: User Info */}
+                                                {/* Column 1: User Profile & Metadata */}
                                                 <td className="py-4 px-6">
                                                     <div className="flex items-center gap-4">
                                                         {u.photoURL ? (
@@ -217,30 +215,11 @@ const UserManagement = () => {
                                                     </div>
                                                 </td>
 
-                                                {/* Column 2: Payment Status */}
-                                                <td className="py-4 px-6 text-center">
-                                                    {u.paymentStatus ? (
-                                                        <span
-                                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${u.paymentStatus.toLowerCase() === 'paid'
-                                                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                                                                    : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
-                                                                }`}
-                                                        >
-                                                            {u.paymentStatus.toUpperCase()}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500">
-                                                            Null (Unset)
-                                                        </span>
-                                                    )}
-                                                </td>
-
-                                                {/* Column 3: Toggle Button (Active/Block) */}
+                                                {/* Column 2: Toggle Button (Active / Blocked) */}
                                                 <td className="py-4 px-6 text-right">
                                                     <div className="flex items-center justify-end gap-3">
                                                         <span
-                                                            className={`text-xs font-semibold ${isBlocked ? 'text-rose-500' : 'text-emerald-500'
-                                                                }`}
+                                                            className={`text-xs font-semibold ${isBlocked ? 'text-rose-500' : 'text-emerald-500'}`}
                                                         >
                                                             {isBlocked ? 'Blocked' : 'Active'}
                                                         </span>
@@ -248,7 +227,7 @@ const UserManagement = () => {
                                                             type="button"
                                                             disabled={isProcessing}
                                                             onClick={() => handleToggleStatus(u)}
-                                                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${isBlocked ? 'bg-slate-300 dark:bg-zinc-700' : 'bg-emerald-500'
+                                                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${isBlocked ? 'bg-slate-300 dark:bg-zinc-700' : 'bg-emerald-500'
                                                                 }`}
                                                         >
                                                             <span

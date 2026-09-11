@@ -22,6 +22,8 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
+    { name: 'Payment', path: '/payment' },
+    { name: 'Payment History', path: '/payment-history' },
     { name: 'Eng Vocab', path: '/english-vocab' },
     { name: 'SSC', path: '/ssc' },
     { name: 'HSC', path: '/hsc' },

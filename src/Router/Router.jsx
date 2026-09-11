@@ -14,6 +14,9 @@ import ComingSoon from "../component/ComingSoon"
 import PrivateRoutes from "../PrivateRoutes/PrivateRoutes"
 import AdminRoute from "../PrivateRoutes/AdminRoute"
 import UserManagement from "../component/UserManagement"
+import Payment from "../component/Payment"
+import PaymentHistory from "../component/PaymentHistory"
+
 
 
 
@@ -69,7 +72,15 @@ const router = createBrowserRouter([
             },
             {
                 path: '/users',
-                element: <PrivateRoutes><UserManagement></UserManagement></PrivateRoutes>
+                element: <AdminRoute><UserManagement></UserManagement></AdminRoute>
+            },
+            {
+                path: '/payment',
+                Component: Payment
+            },
+            {
+                path: '/payment-history',
+                element: <AdminRoute><PaymentHistory></PaymentHistory></AdminRoute>
             }
         ]
     }
