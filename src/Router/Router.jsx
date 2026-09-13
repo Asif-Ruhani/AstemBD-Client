@@ -17,6 +17,7 @@ import UserManagement from "../component/UserManagement"
 import Payment from "../component/Payment"
 import PaymentHistory from "../component/PaymentHistory"
 import CSE from "../component/CSE"
+import ScreenshotAuditLogs from "../component/ScreenshotAuditLogs"
 
 
 
@@ -86,6 +87,10 @@ const router = createBrowserRouter([
             {
                 path: '/payment-history',
                 element: <AdminRoute><PaymentHistory></PaymentHistory></AdminRoute>
+            },
+            {
+                path: '/user-log',
+                element: <AdminRoute><ScreenshotAuditLogs></ScreenshotAuditLogs></AdminRoute>
             }
         ]
     }

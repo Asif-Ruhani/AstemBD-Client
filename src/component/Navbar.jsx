@@ -34,6 +34,7 @@ const Navbar = () => {
     // { name: 'Payment', path: '/payment' },
     { name: 'Payment History', path: '/payment-history', adminOnly: true },
     { name: 'Users', path: '/users', adminOnly: true },
+    { name: 'User-Log', path: '/user-log', adminOnly: true },
   ];
 
   // Filter links: non-admins and logged-out users will not see adminOnly items

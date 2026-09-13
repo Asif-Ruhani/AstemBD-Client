@@ -1,44 +1,53 @@
-// import React from 'react';
-// import { Navigate, useLocation } from 'react-router';
-// import useAuth from '../Hooks/useAuth';
 
-// const PrivateRoutes = ({ children }) => {
 
-//     const { authStatus } = useAuth();
-//     const location = useLocation();
-
-//     if (authStatus === 'loading') {
-//         return (
-//             <div className="flex justify-center items-center min-h-screen">
-//                 <span className="loading loading-bars loading-lg"></span>
-//             </div>
-//         );
-//     }
-
-//     if (authStatus === 'not-authenticated') {
-//         return (
-//             <Navigate
-//                 to="/login"
-//                 state={{ from: location }}
-//                 replace
-//             />
-//         );
-//     }
-
-//     if (authStatus === 'user' || authStatus === 'admin') {
-//         return children;
-//     }
-// };
-
-// export default PrivateRoutes;
 
 import React from 'react';
 import { Navigate, useLocation } from 'react-router';
 import useAuth from '../Hooks/useAuth';
+import DynamicWatermark from '../component/DynamicWatermark';
+import { useScreenShield } from '../Hooks/useScreenShield';
+import useHardenedShield from '../Hooks/useHardenedShield';
+
+
+
 
 const PrivateRoutes = ({ children }) => {
     const { authStatus, paymentStatus } = useAuth();
     const location = useLocation();
+    const { isProtected, resetShield } = useScreenShield({ autoRecover: true });
+
+    useHardenedShield();
+
+    // Helper wrapper to enforce dynamic watermark and defocus screen shield
+    const renderProtectedContent = (content) => (
+        <div className="relative min-h-screen">
+            {/* 1. Dynamic Canvas Watermark (User Email, Partial UID, Date) */}
+            <DynamicWatermark />
+
+            {/* 2. Defocus Shield Overlay (Fires when Snipping tool or window focus leaves) */}
+            {isProtected && (
+                <div
+                    onClick={resetShield}
+                    className="fixed inset-0 z-[10000] backdrop-blur-2xl bg-slate-950/90 flex flex-col items-center justify-center text-center p-6 select-none cursor-pointer"
+                >
+                    <div className="w-14 h-14 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center mb-4">
+                        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-black text-white tracking-tight mb-1">
+                        Screen Capture Protection Active
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-400 max-w-sm leading-relaxed">
+                        Content is hidden because an external tool or another window is focused. Click anywhere on this screen to resume.
+                    </p>
+                </div>
+            )}
+
+            {/* 3. Actual Private Content */}
+            {content}
+        </div>
+    );
 
     // 1. Loading State
     if (authStatus === 'loading' || (authStatus !== 'not-authenticated' && paymentStatus === null)) {
@@ -60,19 +69,19 @@ const PrivateRoutes = ({ children }) => {
         );
     }
 
-    // 3. Admin -> Direct Access (Bypass payment verification)
+    // 3. Admin -> Direct Access with Protection
     if (authStatus === 'admin') {
-        return children;
+        return renderProtectedContent(children);
     }
 
     // 4. Authenticated User -> Check Payment Status
     if (authStatus === 'user') {
-        // A. Paid -> Access granted
+        // A. Paid -> Access granted with Protection
         if (paymentStatus === 'paid') {
-            return children;
+            return renderProtectedContent(children);
         }
 
-        // B. Pending -> Display review notice with helpline
+        // B. Pending -> Display review notice with helpline (No need to watermark review notice)
         if (paymentStatus === 'pending') {
             return (
                 <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950 p-4">
@@ -116,3 +125,8 @@ const PrivateRoutes = ({ children }) => {
 };
 
 export default PrivateRoutes;
+
+
+
+
+
