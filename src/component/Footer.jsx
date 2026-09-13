@@ -15,46 +15,7 @@ const Footer = () => {
       {/* Main Container */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-[100px] pt-16 pb-10">
         
-        {/* Newsletter / CTA Banner */}
-        <div className="relative bg-gradient-to-r from-slate-800/80 via-slate-800/40 to-slate-800/80 rounded-3xl p-8 sm:p-10 border border-slate-700/70 shadow-2xl mb-16 overflow-hidden">
-          <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div className="text-center lg:text-left max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-primary/20 text-primary-content mb-3 border border-primary/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Stay Ahead of Exam Curves
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Get Weekly Study Roadmaps & Vocab Sets
-              </h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-400 leading-relaxed">
-                Join 50,000+ students receiving high-yield test insights, model exam routines, and scholarship alerts directly in their inbox.
-              </p>
-            </div>
-
-            {/* Newsletter Input Form */}
-            <form onSubmit={(e) => e.preventDefault()} className="w-full sm:w-auto flex flex-col sm:flex-row gap-2.5 max-w-md">
-              <div className="relative flex-1">
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter your email address"
-                  className="w-full sm:w-72 px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-              </div>
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-xl bg-white text-slate-900 hover:bg-primary hover:text-primary-content text-xs sm:text-sm font-bold transition-all duration-200 shadow-md flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer"
-              >
-                <span>Subscribe</span>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </button>
-            </form>
-          </div>
-        </div>
+        
 
         {/* 5-Column Navigation Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10 pb-12 border-b border-slate-800/80">
@@ -66,7 +27,7 @@ const Footer = () => {
                 <span>A</span>
               </div>
               <span className="text-2xl font-black tracking-tight text-white">
-                ASTEMBD<span className="text-white font-bold">.</span>
+                ASTEM
               </span>
             </Link>
 
@@ -144,24 +105,24 @@ const Footer = () => {
             <ul className="space-y-3 text-xs sm:text-sm font-medium">
               <li>
                 <Link to="/ssc" className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
-                  <span>SSC (2026-2027)</span>
+                  <span>SSC</span>
                   {/* <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">Live</span> */}
                 </Link>
               </li>
               <li>
                 <Link to="/hsc" className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
-                  <span>HSC (2026-2027)</span>
+                  <span>HSC</span>
                   {/* <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400">Live</span> */}
                 </Link>
               </li>
               <li>
-                <Link to="/englishVocub" className="text-slate-400 hover:text-white transition-colors">
+                <Link to="/english-vocab" className="text-slate-400 hover:text-white transition-colors">
                   English Vocabulary
                 </Link>
               </li>
               <li>
-                <Link to="/studyAbroad" className="text-slate-400 hover:text-white transition-colors">
-                  Study Abroad (IELTS/GRE)
+                <Link to="/study-abroad" className="text-slate-400 hover:text-white transition-colors">
+                  Study Abroad
                 </Link>
               </li>
             </ul>
@@ -234,7 +195,7 @@ const Footer = () => {
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-400">
           
           <p className="text-center md:text-left">
-            © {new Date().getFullYear()} <span className="text-white font-bold">AstemBD Inc.</span> All rights reserved. Standardized Academic System.
+            © {new Date().getFullYear()} <span className="text-white font-bold">Astem Inc.</span> All rights reserved. Standardized Academic System.
           </p>
 
           {/* Developer Tribute */}

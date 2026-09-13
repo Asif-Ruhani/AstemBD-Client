@@ -61,7 +61,7 @@ const Banner = () => {
               </button>
               
               <Link
-                to="/englishVocub"
+                to="/coming-soon"
                 className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-sm font-bold bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 border-2 border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
               >
                 <span>Free Vocabulary Drill</span>
@@ -99,7 +99,7 @@ const Banner = () => {
               <div className="flex items-center justify-between pb-5 mb-5 border-b border-slate-100 dark:border-zinc-800">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-black">
-                    E
+                    A
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-none">Learning Hub</h3>
@@ -162,7 +162,7 @@ const Banner = () => {
               <div className="mt-5 pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-500 dark:text-zinc-400">Daily Diagnostic Available</span>
                 <Link
-                  to="/englishVocub"
+                  to="/coming-soon"
                   className="text-xs font-bold text-slate-900 dark:text-white hover:text-primary transition-colors flex items-center gap-1"
                 >
                   <span>Quick Test</span>

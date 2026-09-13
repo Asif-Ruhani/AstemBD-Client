@@ -1,5 +1,6 @@
 // import React, { useEffect, useState } from "react";
 // import { useLoaderData, useParams } from "react-router";
+// import useAuth from "../Hooks/useAuth";
 
 // const EverydayWordSectionDetail = () => {
 //   const { sectionNumber } = useParams();
@@ -8,39 +9,55 @@
 //   const [expandedCard, setExpandedCard] = useState(null);
 //   const [sectionData, setSectionData] = useState([]);
 //   const [loading, setLoading] = useState(true);
+//   const [isPageHidden, setIsPageHidden] = useState(false);
 
+//   const { user, loading: authLoading } = useAuth();
 
 //   useEffect(() => {
+//     if (authLoading || !user) return;
+
+//     const controller = new AbortController();
 
 //     const fetchSectionDetails = async () => {
+//       setLoading(true);
+//       try {
+//         const token = await user.getIdToken();
 
-//       const response = await fetch(
-//         `http://localhost:3000/everydayWordSectionDetail/${sectionNumber}`,
-//         {
-//           credentials: 'include'
+//         const response = await fetch(
+//           `https://astembd-server.onrender.com/everydayWordSectionDetail/${sectionNumber}`,
+//           {
+//             headers: {
+//               'Authorization': `Bearer ${token}`,
+//             },
+//             signal: controller.signal,
+//           }
+//         );
+
+//         if (!response.ok) {
+//           throw new Error(`Request failed with status ${response.status}`);
 //         }
-//       );
 
-//       const data = await response.json();
-
-//       setSectionData(data);
+//         const data = await response.json();
+//         setSectionData(data);
+//       } catch (error) {
+//         if (error.name !== 'AbortError') {
+//           console.error('Failed to fetch section details:', error);
+//         }
+//       } finally {
+//         if (!controller.signal.aborted) {
+//           setLoading(false);
+//         }
+//       }
 //     };
-
 
 //     fetchSectionDetails();
 
-//   }, [sectionNumber]);
-
-
-
-
-
+//     return () => controller.abort();
+//   }, [sectionNumber, user, authLoading]);
 
 //   // ==========================================
 //   // PREMIUM CONTENT PROTECTION
 //   // ==========================================
-
-//   const [isPageHidden, setIsPageHidden] = useState(false);
 
 //   useEffect(() => {
 //     // 1. Detect when the user leaves the tab/window
@@ -129,6 +146,15 @@
 //   // ==========================================
 //   // END PREMIUM CONTENT PROTECTION
 //   // ==========================================
+
+//   // Loading conditional return placed safely after all Hooks
+//   if (loading) {
+//     return (
+//       <div className="flex justify-center items-center min-h-screen">
+//         <span className="loading loading-bars loading-lg"></span>
+//       </div>
+//     );
+//   }
 
 //   const tabs = [
 //     { id: "verbs", label: "Verbs", count: sectionData?.verbs?.length },
@@ -648,6 +674,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useLoaderData, useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import useAuth from "../Hooks/useAuth";
 
 const EverydayWordSectionDetail = () => {
@@ -655,53 +682,37 @@ const EverydayWordSectionDetail = () => {
 
   const [activeTab, setActiveTab] = useState("verbs");
   const [expandedCard, setExpandedCard] = useState(null);
-  const [sectionData, setSectionData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [isPageHidden, setIsPageHidden] = useState(false);
 
   const { user, loading: authLoading } = useAuth();
 
-  useEffect(() => {
-    if (authLoading || !user) return;
+  const {
+    data: sectionData = {},
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["sectionDetail", sectionNumber, user?.uid],
+    queryFn: async ({ signal }) => {
+      const token = await user.getIdToken();
 
-    const controller = new AbortController();
-
-    const fetchSectionDetails = async () => {
-      setLoading(true);
-      try {
-        const token = await user.getIdToken();
-
-        const response = await fetch(
-          `https://astembd-server.onrender.com/everydayWordSectionDetail/${sectionNumber}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            signal: controller.signal,
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
+      const response = await fetch(
+        `https://astembd-server.onrender.com/everydayWordSectionDetail/${sectionNumber}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          signal,
         }
+      );
 
-        const data = await response.json();
-        setSectionData(data);
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.error('Failed to fetch section details:', error);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
       }
-    };
 
-    fetchSectionDetails();
-
-    return () => controller.abort();
-  }, [sectionNumber, user, authLoading]);
+      return response.json();
+    },
+    enabled: !authLoading && !!user && !!sectionNumber,
+  });
 
   // ==========================================
   // PREMIUM CONTENT PROTECTION
@@ -796,10 +807,18 @@ const EverydayWordSectionDetail = () => {
   // ==========================================
 
   // Loading conditional return placed safely after all Hooks
-  if (loading) {
+   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <span className="loading loading-bars loading-lg"></span>
+        <span className="loading loading-bars loading-lg text-slate-800 dark:text-white"></span>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-20 text-center text-rose-500 font-medium">
+        Failed to load: {error.message}
       </div>
     );
   }

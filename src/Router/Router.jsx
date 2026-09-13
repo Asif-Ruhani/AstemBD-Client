@@ -16,6 +16,7 @@ import AdminRoute from "../PrivateRoutes/AdminRoute"
 import UserManagement from "../component/UserManagement"
 import Payment from "../component/Payment"
 import PaymentHistory from "../component/PaymentHistory"
+import CSE from "../component/CSE"
 
 
 
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
                 Component: HSC
             },
             {
+                path: '/cse',
+                Component: CSE
+            },
+            {
                 path: '/study-abroad',
                 // loader: () => fetch("https://astem-bd-server.vercel.app/users"),
                 Component: StudyAbroad
@@ -67,7 +72,7 @@ const router = createBrowserRouter([
                 
             },
             {
-                path: '/ssc/general-math',
+                path: '/coming-soon',
                 Component: ComingSoon
             },
             {
