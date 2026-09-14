@@ -1,17 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-
-const fetchVocabCourses = async () => {
-  const res = await fetch('https://astembd-server.onrender.com/eng-vocab-courses');
-  if (!res.ok) {
-    throw new Error(`Failed to fetch vocabulary courses: ${res.status}`);
-  }
-  const data = await res.json();
-  return data.courses || [];
-};
+import useAxiosPublic from '../Hooks/useAxiosPublic';
 
 const EnglishVocub = () => {
+  const axiosPublic = useAxiosPublic();
+
   const {
     data: cards = [],
     isLoading,
@@ -19,7 +13,10 @@ const EnglishVocub = () => {
     error,
   } = useQuery({
     queryKey: ['eng-vocab-courses'],
-    queryFn: fetchVocabCourses,
+    queryFn: async () => {
+      const res = await axiosPublic.get('/eng-vocab-courses');
+      return res.data.courses || [];
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes cache
   });
 

@@ -1,18 +1,11 @@
-
 import React from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-
-const fetchCourses = async () => {
-  const res = await fetch('https://astembd-server.onrender.com/courses');
-  if (!res.ok) {
-    throw new Error(`HTTP error! Status: ${res.status}`);
-  }
-  const data = await res.json();
-  return data.courses || data.data || (Array.isArray(data) ? data : []);
-};
+import useAxiosPublic from '../Hooks/useAxiosPublic';
 
 const Content = () => {
+  const axiosPublic = useAxiosPublic();
+
   const {
     data: cards = [],
     isLoading,
@@ -20,7 +13,11 @@ const Content = () => {
     error,
   } = useQuery({
     queryKey: ['courses'],
-    queryFn: fetchCourses,
+    queryFn: async () => {
+      const res = await axiosPublic.get('/courses');
+      const data = res.data;
+      return data.courses || data.data || (Array.isArray(data) ? data : []);
+    },
   });
 
   if (isLoading) {

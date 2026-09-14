@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useAuth from '../Hooks/useAuth';
+import useAxiosSecure from '../Hooks/useAxiosSecure'; // 1. Import hook
 import Swal from 'sweetalert2';
 
 const PaymentHistory = () => {
     const { user, loading: authLoading } = useAuth();
+    const axiosSecure = useAxiosSecure(); // 2. Initialize hook
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [updatingAction, setUpdatingAction] = useState(null); // format: `${id}-${action}`
@@ -21,25 +23,15 @@ const PaymentHistory = () => {
         const fetchHistory = async () => {
             setLoading(true);
             try {
-                const token = await user.getIdToken();
-                const response = await fetch('https://astembd-server.onrender.com/payment-history', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to load payment history (${response.status})`);
-                }
-
-                const data = await response.json();
-                setPayments(data.payments || []);
+                // Session cookie & anti-CSRF headers handled automatically
+                const response = await axiosSecure.get('/payment-history');
+                setPayments(response.data.payments || []);
             } catch (error) {
                 console.error('Fetch payment history error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Load Failed',
-                    text: error.message || 'Unable to retrieve payment records'
+                    text: error.response?.data?.message || error.message || 'Unable to retrieve payment records'
                 });
             } finally {
                 setLoading(false);
@@ -47,7 +39,7 @@ const PaymentHistory = () => {
         };
 
         fetchHistory();
-    }, [user, authLoading]);
+    }, [user, authLoading, axiosSecure]);
 
     // Handle Payment Status Update (Accept / Reject)
     const handleToggleStatus = async (item, targetStatus) => {
@@ -59,23 +51,10 @@ const PaymentHistory = () => {
 
         setUpdatingAction(`${paymentId}-${targetStatus}`);
         try {
-            const token = await user.getIdToken();
-            const response = await fetch(`https://astembd-server.onrender.com/payment-history/${paymentId}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    verificationStatus: targetStatus,
-                    userEmail: item.email
-                })
+            await axiosSecure.patch(`/payment-history/${paymentId}/status`, {
+                verificationStatus: targetStatus,
+                userEmail: item.email
             });
-
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.message || 'Failed to update payment status');
-            }
 
             // Optimistically update local records
             setPayments((prev) =>
@@ -95,7 +74,7 @@ const PaymentHistory = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'Update failed',
-                text: error.message
+                text: error.response?.data?.message || error.message
             });
         } finally {
             setUpdatingAction(null);

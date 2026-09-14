@@ -1,17 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-
-const fetchHigherStudyCourses = async () => {
-  const res = await fetch('https://astembd-server.onrender.com/study-abroad-courses');
-  if (!res.ok) {
-    throw new Error(`Failed to fetch higher study tracks: ${res.status}`);
-  }
-  const data = await res.json();
-  return data.courses || [];
-};
+import useAxiosPublic from '../Hooks/useAxiosPublic';
 
 const StudyAbroad = () => {
+  const axiosPublic = useAxiosPublic();
+
   const {
     data: cards = [],
     isLoading,
@@ -19,7 +13,10 @@ const StudyAbroad = () => {
     error,
   } = useQuery({
     queryKey: ['higher-study-courses'],
-    queryFn: fetchHigherStudyCourses,
+    queryFn: async () => {
+      const res = await axiosPublic.get('/study-abroad-courses');
+      return res.data.courses || [];
+    },
     staleTime: 1000 * 60 * 10,
   });
 

@@ -1,3 +1,5 @@
+
+
 // import React, { useState } from 'react';
 // import { Link, useNavigate } from 'react-router';
 // import { useForm } from 'react-hook-form';
@@ -8,9 +10,9 @@
 //   const { userRegistration, userLoginWithGoole } = useAuth();
 //   const [showPassword, setShowPassword] = useState(false);
 //   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+//   const [isSubmitting, setIsSubmitting] = useState(false);
 //   const navigate = useNavigate();
 
-//   // Initialize react-hook-form
 //   const {
 //     register,
 //     handleSubmit,
@@ -28,7 +30,6 @@
 //     }
 //   });
 
-//   // Watch password field to compute live strength meter and validate match
 //   const watchedPassword = watch('password', '');
 
 //   const evaluatePassword = (pass = '') => {
@@ -42,40 +43,95 @@
 
 //   const passwordStrength = evaluatePassword(watchedPassword);
 
-//   const onSubmit = (data) => {
-//     userRegistration(data.email, data.confirmPassword)
-//       .then((result) => {
-//         Swal.fire({
-//           position: "top-center",
-//           icon: "success",
-//           title: "Registration Successful",
-//           showConfirmButton: false,
-//           timer: 1500
-//         });
-//         navigate('/');
-//         // console.log(result.user);
-//       })
-//       .catch((error) => {
-//         // console.log(error);
-//       });
+//   // Dedicated API function to save user data into your database
+//   const saveUserToDatabase = async (firebaseUser, extraData = {}) => {
+//     const token = await firebaseUser.getIdToken();
+
+//     const payload = {
+//       uid: firebaseUser.uid,
+//       email: firebaseUser.email,
+//       displayName: extraData.fullName || firebaseUser.displayName || '',
+//       photoURL: firebaseUser.photoURL || '',
+//       targetExam: extraData.targetExam || 'General',
+//       providerId: firebaseUser.providerData[0]?.providerId || 'password',
+//       createdAt: new Date().toISOString()
+//     };
+
+//     const response = await fetch('https://astembd-server.onrender.com/users', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': `Bearer ${token}`
+//       },
+//       body: JSON.stringify(payload)
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`Failed to save user data: ${response.status}`);
+//     }
+
+//     return await response.json();
 //   };
 
-//   const handleGoogleSignup = () => {
-//     userLoginWithGoole()
-//       .then((result) => {
-//         Swal.fire({
-//           position: "top-center",
-//           icon: "success",
-//           title: "Registration Successful",
-//           showConfirmButton: false,
-//           timer: 1500
-//         });
-//         navigate('/');
-//         console.log(result.user);
-//       })
-//       .catch(error => {
-//         console.log(error);
-//       })
+//   const onSubmit = async (data) => {
+//     setIsSubmitting(true);
+//     try {
+//       const result = await userRegistration(data.email, data.confirmPassword);
+
+//       // Post user info to backend database
+//       await saveUserToDatabase(result.user, {
+//         fullName: data.fullName,
+//         targetExam: data.targetExam
+//       });
+
+//       Swal.fire({
+//         position: 'top-center',
+//         icon: 'success',
+//         title: 'Registration Successful',
+//         showConfirmButton: false,
+//         timer: 1500
+//       });
+//       navigate('/');
+//     } catch (error) {
+//       console.error('Registration error:', error);
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'Registration Failed',
+//         text: error.message || 'Something went wrong, please try again.'
+//       });
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   const handleGoogleSignup = async () => {
+//     setIsSubmitting(true);
+//     try {
+//       const result = await userLoginWithGoole();
+
+//       // Post user info to backend database (Google accounts will use their account name/photo)
+//       await saveUserToDatabase(result.user, {
+//         targetExam: 'SSC (2026-2027)' // Default track or customize as needed
+//       });
+
+//       Swal.fire({
+//         position: 'top-center',
+//         icon: 'success',
+//         title: 'Registration Successful',
+//         showConfirmButton: false,
+//         timer: 1500
+//       });
+//       navigate('/');
+//     } catch (error) {
+//       console.error('Google sign-up error:', error);
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'Sign Up Failed',
+//         text: error.message || 'Google signup was cancelled or failed.'
+//       });
+//     } finally {
+//       setIsSubmitting(false);
+//     }
 //   };
 
 //   const getStrengthBar = () => {
@@ -97,10 +153,9 @@
 
 //   return (
 //     <section className="min-h-screen flex items-center justify-center bg-slate-100/60 dark:bg-zinc-950 p-4 sm:p-6 lg:p-10">
-//       {/* Outer Card Container */}
 //       <div className="w-full max-w-6xl bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
 
-//         {/* Left Side: Brand Value Showcase (5 Columns) */}
+//         {/* Left Side */}
 //         <aside className="relative hidden lg:flex lg:col-span-5 flex-col justify-between p-12 bg-gradient-to-br from-slate-900 via-zinc-900 to-slate-950 text-white overflow-hidden">
 //           <div className="absolute -top-24 -left-24 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
 //           <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -120,7 +175,6 @@
 //               Access curated question banks, personalized mock tests, and real-time performance analytics crafted for your success.
 //             </p>
 
-//             {/* Feature List */}
 //             <ul className="mt-8 space-y-4">
 //               {['Smart adaptive diagnostic tests', 'Comprehensive subject roadmaps', 'Direct mentor question resolution'].map((item, idx) => (
 //                 <li key={idx} className="flex items-center gap-3 text-sm text-slate-300">
@@ -133,7 +187,6 @@
 //             </ul>
 //           </div>
 
-//           {/* Testimonial Snippet */}
 //           <div className="relative z-10 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
 //             <p className="text-xs italic text-slate-300 leading-relaxed">
 //               "The targeted prep track helped me improve my diagnostic score by 28% within 6 weeks."
@@ -150,11 +203,10 @@
 //           </div>
 //         </aside>
 
-//         {/* Right Side: Registration Form (7 Columns) */}
+//         {/* Right Side */}
 //         <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-center">
 //           <div className="max-w-xl w-full mx-auto">
 
-//             {/* Header */}
 //             <div className="mb-6">
 //               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
 //                 Create your student account
@@ -164,11 +216,12 @@
 //               </p>
 //             </div>
 
-//             {/* Google Signup */}
+//             {/* Google Signup Button */}
 //             <button
 //               type="button"
+//               disabled={isSubmitting}
 //               onClick={handleGoogleSignup}
-//               className="w-full py-2.5 px-4 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-zinc-700/60 transition shadow-sm active:scale-[0.99]"
+//               className="w-full py-2.5 px-4 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-zinc-700/60 transition shadow-sm active:scale-[0.99] disabled:opacity-60"
 //             >
 //               <svg className="w-4 h-4" viewBox="0 0 24 24">
 //                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -179,7 +232,6 @@
 //               <span>Sign up with Google</span>
 //             </button>
 
-//             {/* Divider */}
 //             <div className="relative my-6">
 //               <div className="absolute inset-0 flex items-center">
 //                 <div className="w-full border-t border-slate-200 dark:border-zinc-800" />
@@ -191,10 +243,7 @@
 //               </div>
 //             </div>
 
-//             {/* Form */}
 //             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-
-//               {/* Row 1: Full Name & Primary Track */}
 //               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 //                 <div>
 //                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">
@@ -212,8 +261,8 @@
 //                       }
 //                     })}
 //                     className={`w-full px-3.5 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.fullName
-//                       ? 'border-rose-500 focus:ring-rose-500'
-//                       : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
+//                         ? 'border-rose-500 focus:ring-rose-500'
+//                         : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
 //                       }`}
 //                   />
 //                   {errors.fullName && (
@@ -245,7 +294,6 @@
 //                 </div>
 //               </div>
 
-//               {/* Row 2: Email */}
 //               <div>
 //                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">
 //                   Email Address
@@ -261,8 +309,8 @@
 //                     }
 //                   })}
 //                   className={`w-full px-3.5 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.email
-//                     ? 'border-rose-500 focus:ring-rose-500'
-//                     : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
+//                       ? 'border-rose-500 focus:ring-rose-500'
+//                       : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
 //                     }`}
 //                 />
 //                 {errors.email && (
@@ -272,7 +320,6 @@
 //                 )}
 //               </div>
 
-//               {/* Row 3: Password & Confirm Password */}
 //               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 //                 <div>
 //                   <div className="flex justify-between items-center mb-1.5">
@@ -298,8 +345,8 @@
 //                         }
 //                       })}
 //                       className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.password
-//                         ? 'border-rose-500 focus:ring-rose-500'
-//                         : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
+//                           ? 'border-rose-500 focus:ring-rose-500'
+//                           : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
 //                         }`}
 //                     />
 //                     <button
@@ -310,7 +357,6 @@
 //                       {showPassword ? 'Hide' : 'Show'}
 //                     </button>
 //                   </div>
-//                   {/* Strength Bar */}
 //                   {watchedPassword && (
 //                     <div className="h-1 w-full bg-slate-200 dark:bg-zinc-800 rounded-full mt-2 overflow-hidden">
 //                       <div className={`h-full transition-all duration-300 ${strength.color} ${strength.width}`} />
@@ -336,8 +382,8 @@
 //                         validate: (val) => val === watchedPassword || 'Passwords do not match'
 //                       })}
 //                       className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.confirmPassword
-//                         ? 'border-rose-500 focus:ring-rose-500'
-//                         : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
+//                           ? 'border-rose-500 focus:ring-rose-500'
+//                           : 'border-slate-300 dark:border-zinc-700 focus:ring-slate-900 dark:focus:ring-white'
 //                         }`}
 //                     />
 //                     <button
@@ -356,7 +402,6 @@
 //                 </div>
 //               </div>
 
-//               {/* Terms Checkbox */}
 //               <div>
 //                 <div className="flex items-start pt-1">
 //                   <input
@@ -385,19 +430,18 @@
 //                 )}
 //               </div>
 
-//               {/* Submit Button */}
 //               <button
 //                 type="submit"
-//                 className="w-full mt-2 py-3 px-4 rounded-xl text-sm font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-zinc-100 transition shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
+//                 disabled={isSubmitting}
+//                 className="w-full mt-2 py-3 px-4 rounded-xl text-sm font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-zinc-100 transition shadow-md active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-60"
 //               >
-//                 <span>Create Account</span>
+//                 <span>{isSubmitting ? 'Creating Account...' : 'Create Account'}</span>
 //                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
 //                 </svg>
 //               </button>
 //             </form>
 
-//             {/* Bottom Footer */}
 //             <p className="text-center mt-6 text-xs text-slate-600 dark:text-zinc-400">
 //               Already have an account?{' '}
 //               <Link to="/login" className="font-bold text-slate-900 dark:text-white hover:underline">
@@ -418,8 +462,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
+import { getAdditionalUserInfo } from 'firebase/auth';
 import useAuth from '../Hooks/useAuth';
 import Swal from 'sweetalert2';
+import { saveUserToDatabase } from '../Utils/saveUser';
 
 const Registration = () => {
   const { userRegistration, userLoginWithGoole } = useAuth();
@@ -432,7 +478,7 @@ const Registration = () => {
     register,
     handleSubmit,
     watch,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
     mode: 'onTouched',
     defaultValues: {
@@ -441,8 +487,8 @@ const Registration = () => {
       targetExam: 'SSC (2026-2027)',
       password: '',
       confirmPassword: '',
-      agreeTerms: false
-    }
+      agreeTerms: false,
+    },
   });
 
   const watchedPassword = watch('password', '');
@@ -458,45 +504,15 @@ const Registration = () => {
 
   const passwordStrength = evaluatePassword(watchedPassword);
 
-  // Dedicated API function to save user data into your database
-  const saveUserToDatabase = async (firebaseUser, extraData = {}) => {
-    const token = await firebaseUser.getIdToken();
-
-    const payload = {
-      uid: firebaseUser.uid,
-      email: firebaseUser.email,
-      displayName: extraData.fullName || firebaseUser.displayName || '',
-      photoURL: firebaseUser.photoURL || '',
-      targetExam: extraData.targetExam || 'General',
-      providerId: firebaseUser.providerData[0]?.providerId || 'password',
-      createdAt: new Date().toISOString()
-    };
-
-    const response = await fetch('https://astembd-server.onrender.com/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to save user data: ${response.status}`);
-    }
-
-    return await response.json();
-  };
-
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
       const result = await userRegistration(data.email, data.confirmPassword);
 
-      // Post user info to backend database
+      // Post user info using the shared utility
       await saveUserToDatabase(result.user, {
         fullName: data.fullName,
-        targetExam: data.targetExam
+        targetExam: data.targetExam,
       });
 
       Swal.fire({
@@ -504,7 +520,7 @@ const Registration = () => {
         icon: 'success',
         title: 'Registration Successful',
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
       navigate('/');
     } catch (error) {
@@ -512,7 +528,7 @@ const Registration = () => {
       Swal.fire({
         icon: 'error',
         title: 'Registration Failed',
-        text: error.message || 'Something went wrong, please try again.'
+        text: error.message || 'Something went wrong, please try again.',
       });
     } finally {
       setIsSubmitting(false);
@@ -523,18 +539,22 @@ const Registration = () => {
     setIsSubmitting(true);
     try {
       const result = await userLoginWithGoole();
+      const additionalInfo = getAdditionalUserInfo(result);
 
-      // Post user info to backend database (Google accounts will use their account name/photo)
-      await saveUserToDatabase(result.user, {
-        targetExam: 'SSC (2026-2027)' // Default track or customize as needed
-      });
+      // Only insert into the database if the user is truly new
+      if (additionalInfo?.isNewUser) {
+        await saveUserToDatabase(result.user, {
+          fullName: result.user.displayName,
+          targetExam: 'SSC (2026-2027)',
+        });
+      }
 
       Swal.fire({
         position: 'top-center',
         icon: 'success',
-        title: 'Registration Successful',
+        title: additionalInfo?.isNewUser ? 'Registration Successful' : 'Signed In Successfully',
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
       navigate('/');
     } catch (error) {
@@ -542,7 +562,7 @@ const Registration = () => {
       Swal.fire({
         icon: 'error',
         title: 'Sign Up Failed',
-        text: error.message || 'Google signup was cancelled or failed.'
+        text: error.message || 'Google signup was cancelled or failed.',
       });
     } finally {
       setIsSubmitting(false);
@@ -569,7 +589,6 @@ const Registration = () => {
   return (
     <section className="min-h-screen flex items-center justify-center bg-slate-100/60 dark:bg-zinc-950 p-4 sm:p-6 lg:p-10">
       <div className="w-full max-w-6xl bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
-
         {/* Left Side */}
         <aside className="relative hidden lg:flex lg:col-span-5 flex-col justify-between p-12 bg-gradient-to-br from-slate-900 via-zinc-900 to-slate-950 text-white overflow-hidden">
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -621,7 +640,6 @@ const Registration = () => {
         {/* Right Side */}
         <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-center">
           <div className="max-w-xl w-full mx-auto">
-
             <div className="mb-6">
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Create your student account
@@ -672,8 +690,8 @@ const Registration = () => {
                       minLength: { value: 3, message: 'Name must be at least 3 characters' },
                       pattern: {
                         value: /^[a-zA-Z\s.'-]+$/,
-                        message: 'Name cannot contain numbers or special symbols'
-                      }
+                        message: 'Name cannot contain numbers or special symbols',
+                      },
                     })}
                     className={`w-full px-3.5 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.fullName
                         ? 'border-rose-500 focus:ring-rose-500'
@@ -720,8 +738,8 @@ const Registration = () => {
                     required: 'Email address is required',
                     pattern: {
                       value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                      message: 'Please enter a valid email address containing @ and domain'
-                    }
+                      message: 'Please enter a valid email address containing @ and domain',
+                    },
                   })}
                   className={`w-full px-3.5 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.email
                       ? 'border-rose-500 focus:ring-rose-500'
@@ -756,8 +774,8 @@ const Registration = () => {
                           hasUppercase: (v) => /[A-Z]/.test(v) || 'Must contain at least one uppercase letter',
                           hasLowercase: (v) => /[a-z]/.test(v) || 'Must contain at least one lowercase letter',
                           hasNumber: (v) => /[0-9]/.test(v) || 'Must contain at least one number',
-                          hasSpecial: (v) => /[^A-Za-z0-9]/.test(v) || 'Must contain at least one special character'
-                        }
+                          hasSpecial: (v) => /[^A-Za-z0-9]/.test(v) || 'Must contain at least one special character',
+                        },
                       })}
                       className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.password
                           ? 'border-rose-500 focus:ring-rose-500'
@@ -794,7 +812,7 @@ const Registration = () => {
                       placeholder="Re-enter password"
                       {...register('confirmPassword', {
                         required: 'Please confirm your password',
-                        validate: (val) => val === watchedPassword || 'Passwords do not match'
+                        validate: (val) => val === watchedPassword || 'Passwords do not match',
                       })}
                       className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-zinc-800/40 text-slate-900 dark:text-white text-sm focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 transition ${errors.confirmPassword
                           ? 'border-rose-500 focus:ring-rose-500'
@@ -823,7 +841,7 @@ const Registration = () => {
                     id="agreeTerms"
                     type="checkbox"
                     {...register('agreeTerms', {
-                      required: 'You must accept the terms & conditions'
+                      required: 'You must accept the terms & conditions',
                     })}
                     className="w-4 h-4 mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
@@ -863,10 +881,8 @@ const Registration = () => {
                 Sign in
               </Link>
             </p>
-
           </div>
         </div>
-
       </div>
     </section>
   );

@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import useAuth from '../Hooks/useAuth';
 import Swal from 'sweetalert2';
+import { getAdditionalUserInfo } from 'firebase/auth';
+import { saveUserToDatabase } from '../Utils/saveUser';
 
 const Login = () => {
   const { userSignIn, userLoginWithGoole, resetPassword } = useAuth();
@@ -46,22 +48,37 @@ const Login = () => {
       });
   };
 
-  const handleGoogleLogin = () => {
-    userLoginWithGoole()
-      .then((result) => {
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: "Successfully Logged in",
-          showConfirmButton: false,
-          timer: 1500,
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await userLoginWithGoole();
+
+      // 3. Inspect if this is a brand new account created via Google
+      const additionalInfo = getAdditionalUserInfo(result);
+
+      if (additionalInfo?.isNewUser) {
+        await saveUserToDatabase(result.user, {
+          fullName: result.user.displayName,
+          targetExam: 'General',
         });
-        navigate('/');
-        // console.log(result.user);
-      })
-      .catch(error => {
-        console.log(error);
-      })
+      }
+
+      Swal.fire({
+        position: "top-center",
+        icon: "success",
+        title: "Successfully Logged in",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      navigate('/');
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Google Sign-In Failed",
+        text: error.message || "An unexpected error occurred during sign-in.",
+      });
+    }
   };
 
 

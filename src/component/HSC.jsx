@@ -1,17 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-
-const fetchHscCourses = async () => {
-  const res = await fetch('https://astembd-server.onrender.com/hsc-courses');
-  if (!res.ok) {
-    throw new Error(`Failed to fetch HSC courses: ${res.status}`);
-  }
-  const data = await res.json();
-  return data.courses || [];
-};
+import useAxiosPublic from '../Hooks/useAxiosPublic';
 
 const HSC = () => {
+  const axiosPublic = useAxiosPublic();
+
   const {
     data: cards = [],
     isLoading,
@@ -19,7 +13,10 @@ const HSC = () => {
     error,
   } = useQuery({
     queryKey: ['hsc-courses'],
-    queryFn: fetchHscCourses,
+    queryFn: async () => {
+      const res = await axiosPublic.get('/hsc-courses');
+      return res.data.courses || [];
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes cache
   });
 

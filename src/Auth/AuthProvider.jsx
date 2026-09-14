@@ -255,6 +255,7 @@
 
 
 import React, { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 import { AuthContext } from './AuthContext';
 import {
     createUserWithEmailAndPassword,
@@ -266,6 +267,15 @@ import {
     signOut
 } from 'firebase/auth';
 import { auth } from '../Firebase/Firebase.config';
+
+// Plain Axios instance outside the component — zero hooks, zero circular dependencies
+const authClient = axios.create({
+    baseURL: 'https://astembd-server.onrender.com',
+    withCredentials: true,
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+    }
+});
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -299,29 +309,11 @@ const AuthProvider = ({ children }) => {
         return () => unsubscribe();
     }, []);
 
+    // Check session status strictly via HttpOnly cookie
     const checkAuthStatus = async () => {
         try {
-            const currentUser = auth.currentUser;
-            const idToken = currentUser ? await currentUser.getIdToken() : null;
-
-            const headers = {};
-            if (idToken) {
-                headers['Authorization'] = `Bearer ${idToken}`;
-            }
-
-            const response = await fetch('https://astembd-server.onrender.com/auth/me', {
-                method: 'GET',
-                credentials: 'include',
-                headers
-            });
-
-            if (!response.ok) {
-                setAuthStatus('not-authenticated');
-                setPaymentStatus(null);
-                return;
-            }
-
-            const data = await response.json();
+            const response = await authClient.get('/auth/me');
+            const data = response.data;
 
             // Set admin or standard user status
             if (data.isAdmin === true) {
@@ -352,6 +344,24 @@ const AuthProvider = ({ children }) => {
 
         checkAuthStatus();
     }, [user, loading]);
+
+    // Create server session cookie (one-time handshake with ID token)
+    const createServerSession = async (firebaseUser) => {
+        const idToken = await firebaseUser.getIdToken();
+
+        const response = await authClient.post(
+            '/auth/session',
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${idToken}`
+                }
+            }
+        );
+
+        await checkAuthStatus();
+        return response.data;
+    };
 
     // User registration
     const userRegistration = async (email, password) => {
@@ -396,28 +406,6 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-    // Create server session cookie
-    const createServerSession = async (firebaseUser) => {
-        const idToken = await firebaseUser.getIdToken();
-
-        const response = await fetch('https://astembd-server.onrender.com/auth/session', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                Authorization: `Bearer ${idToken}`
-            }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Failed to create server session');
-        }
-
-        await checkAuthStatus();
-        return data;
-    };
-
     // Reset password
     const resetPassword = (email) => {
         return sendPasswordResetEmail(auth, email);
@@ -426,23 +414,16 @@ const AuthProvider = ({ children }) => {
     // User logout
     const userLogout = async () => {
         try {
-            const response = await fetch('https://astembd-server.onrender.com/auth/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Server logout failed');
-            }
-
-            await signOut(auth);
-            setPaymentStatus(null);
-            return data;
+            // Clear server-side HttpOnly session cookie
+            await authClient.post('/auth/logout');
         } catch (error) {
-            console.error('Logout failed:', error);
-            throw error;
+            console.error('Server logout notice:', error);
+        } finally {
+            // Always sign out client state even if backend logout throws
+            await signOut(auth);
+            setUser(null);
+            setAuthStatus('not-authenticated');
+            setPaymentStatus(null);
         }
     };
 
@@ -460,9 +441,9 @@ const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext value={authInfo}>
+        <AuthContext.Provider value={authInfo}>
             {children}
-        </AuthContext>
+        </AuthContext.Provider>
     );
 };
 

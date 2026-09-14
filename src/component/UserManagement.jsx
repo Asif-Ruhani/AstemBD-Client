@@ -1,40 +1,31 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useAuth from '../Hooks/useAuth';
+import useAxiosSecure from '../Hooks/useAxiosSecure'; // 1. Import hook
 import Swal from 'sweetalert2';
 
 const UserManagement = () => {
     const { user, loading: authLoading } = useAuth();
+    const axiosSecure = useAxiosSecure(); // 2. Initialize hook
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [updatingUid, setUpdatingUid] = useState(null);
 
-    // Fetch all users with Bearer Token
+    // Fetch all users with session cookie
     useEffect(() => {
         if (authLoading || !user) return;
 
         const fetchUsers = async () => {
             setLoading(true);
             try {
-                const token = await user.getIdToken();
-                const response = await fetch('https://astembd-server.onrender.com/users', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch users: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setUsers(data.users || []);
+                const response = await axiosSecure.get('/users');
+                setUsers(response.data.users || []);
             } catch (error) {
                 console.error('Fetch users error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Failed to load users',
-                    text: error.message
+                    text: error.response?.data?.message || error.message
                 });
             } finally {
                 setLoading(false);
@@ -42,29 +33,34 @@ const UserManagement = () => {
         };
 
         fetchUsers();
-    }, [user, authLoading]);
+    }, [user, authLoading, axiosSecure]);
 
     // Handle Active / Block Status Toggle
     const handleToggleStatus = async (targetUser) => {
         const currentStatus = targetUser.status || 'active';
         const nextStatus = currentStatus === 'active' ? 'blocked' : 'active';
+        const isBlocking = nextStatus === 'blocked';
+
+        const result = await Swal.fire({
+            title: isBlocking ? 'Block this user?' : 'Unblock this user?',
+            text: isBlocking
+                ? `Are you sure you want to block ${targetUser.displayName || targetUser.email}? They will lose access.`
+                : `Are you sure you want to activate ${targetUser.displayName || targetUser.email}?`,
+            icon: isBlocking ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonColor: isBlocking ? '#ef4444' : '#10b981',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: isBlocking ? 'Yes, block user' : 'Yes, unblock user',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
 
         setUpdatingUid(targetUser.uid);
         try {
-            const token = await user.getIdToken();
-            const response = await fetch(`https://astembd-server.onrender.com/users/${targetUser.uid}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ status: nextStatus })
+            await axiosSecure.patch(`/users/${targetUser.uid}/status`, {
+                status: nextStatus
             });
-
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.message || 'Failed to update status');
-            }
 
             // Optimistically update local state
             setUsers((prev) =>
@@ -84,12 +80,13 @@ const UserManagement = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'Update failed',
-                text: error.message
+                text: error.response?.data?.message || error.message
             });
         } finally {
             setUpdatingUid(null);
         }
     };
+
 
     // Live Multi-Parameter Search Filtering
     const filteredUsers = useMemo(() => {

@@ -1,53 +1,17 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import useAuth from '../Hooks/useAuth';
-
-const fetchScreenshotLogs = async ({ queryKey }) => {
-    const [_key, { page, searchEmail, token }] = queryKey;
-    const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '50',
-    });
-
-    if (searchEmail?.trim()) {
-        params.append('email', searchEmail.trim());
-    }
-
-    const res = await fetch(`https://astembd-server.onrender.com/audit/screenshot-logs?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // Verified Bearer Token
-        },
-        credentials: 'include',
-    });
-
-    if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to fetch logs: ${res.status}`);
-    }
-
-    return res.json();
-};
+import useAxiosSecure from '../Hooks/useAxiosSecure'; // 1. Import hook
 
 const ScreenshotAuditLogs = () => {
-    const { user } = useAuth();
-    const [token, setToken] = useState(null);
+    const { user, loading: authLoading } = useAuth();
+    const axiosSecure = useAxiosSecure(); // 2. Initialize hook
 
     const [page, setPage] = useState(1);
     const [searchEmail, setSearchEmail] = useState('');
     const [debouncedEmail, setDebouncedEmail] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-
-    // Fetch the Firebase Bearer token when the user is available
-    useEffect(() => {
-        if (user && typeof user.getIdToken === 'function') {
-            user.getIdToken().then((resolvedToken) => {
-                setToken(resolvedToken);
-            });
-        }
-    }, [user]);
 
     // Debounce search input to prevent unnecessary requests
     const handleEmailSearch = (e) => {
@@ -57,9 +21,22 @@ const ScreenshotAuditLogs = () => {
     };
 
     const { data, isLoading, isError, error, isFetching } = useQuery({
-        queryKey: ['screenshot-logs', { page, searchEmail: debouncedEmail, token }],
-        queryFn: fetchScreenshotLogs,
-        enabled: !!token, // Wait until the Firebase token exists before sending request
+        queryKey: ['screenshot-logs', { page, searchEmail: debouncedEmail, uid: user?.uid }],
+        queryFn: async () => {
+            const params = {
+                page: page.toString(),
+                limit: '50',
+            };
+
+            if (debouncedEmail?.trim()) {
+                params.email = debouncedEmail.trim();
+            }
+
+            // Secure session cookie & anti-CSRF header sent automatically
+            const response = await axiosSecure.get('/audit/screenshot-logs', { params });
+            return response.data;
+        },
+        enabled: !authLoading && !!user, // Runs once user auth state is verified
         staleTime: 1000 * 30, // 30 seconds
         keepPreviousData: true,
     });
@@ -128,7 +105,6 @@ const ScreenshotAuditLogs = () => {
     };
 
     return (
-        /* 1. Expanded container width (96% viewport up to 1600px max) */
         <div className="p-4 sm:p-6 lg:p-8 w-full max-w-[96%] xl:max-w-[1600px] mx-auto space-y-6">
             {/* Top Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -230,7 +206,7 @@ const ScreenshotAuditLogs = () => {
                     </div>
                 ) : isError ? (
                     <div className="py-24 text-center text-rose-500 font-medium">
-                        {error?.message || 'Failed to load audit logs.'}
+                        {error?.response?.data?.message || error?.message || 'Failed to load audit logs.'}
                     </div>
                 ) : filteredLogs.length === 0 ? (
                     <div className="py-24 text-center text-slate-400 dark:text-zinc-500">
@@ -238,7 +214,6 @@ const ScreenshotAuditLogs = () => {
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        {/* 2. Added min-w-[1000px] so rows never bunch up on smaller or mid-size screens */}
                         <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[1000px]">
                             <thead>
                                 <tr className="border-b border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-950/40 text-slate-600 dark:text-zinc-400 uppercase text-[11px] font-bold tracking-wider">
@@ -261,7 +236,7 @@ const ScreenshotAuditLogs = () => {
                                             </div>
                                         </td>
 
-                                        {/* Path / URL - relaxed truncation width */}
+                                        {/* Path / URL */}
                                         <td className="py-4 px-6 font-mono text-xs text-slate-700 dark:text-zinc-300">
                                             <span className="inline-block max-w-[420px] truncate align-middle" title={log.pageUrl}>
                                                 {log.pageUrl}

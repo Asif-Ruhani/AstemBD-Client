@@ -1,17 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-
-const fetchCseCourses = async () => {
-    const res = await fetch('https://astembd-server.onrender.com/cse-courses');
-    if (!res.ok) {
-        throw new Error(`Failed to fetch CSE courses: ${res.status}`);
-    }
-    const data = await res.json();
-    return data.courses || [];
-};
+import useAxiosPublic from '../Hooks/useAxiosPublic';
 
 const CSE = () => {
+    const axiosPublic = useAxiosPublic();
+
     const {
         data: cards = [],
         isLoading,
@@ -19,7 +13,10 @@ const CSE = () => {
         error,
     } = useQuery({
         queryKey: ['cse-courses'],
-        queryFn: fetchCseCourses,
+        queryFn: async () => {
+            const res = await axiosPublic.get('/cse-courses');
+            return res.data.courses || [];
+        },
         staleTime: 1000 * 60 * 10,
     });
 
