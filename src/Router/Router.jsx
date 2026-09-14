@@ -18,6 +18,7 @@ import Payment from "../component/Payment"
 import PaymentHistory from "../component/PaymentHistory"
 import CSE from "../component/CSE"
 import ScreenshotAuditLogs from "../component/ScreenshotAuditLogs"
+import RegularExtraVocabWordDetails from "../component/RegularExtraVocabWordDetails"
 
 
 
@@ -74,7 +75,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/english-vocab/everyday-Word/extra-section/:code',
-                element: <PrivateRoutes><EverydayWordSectionDetail></EverydayWordSectionDetail></PrivateRoutes>
+                element: <PrivateRoutes><RegularExtraVocabWordDetails></RegularExtraVocabWordDetails></PrivateRoutes>
             },
             {
                 path: '/coming-soon',
