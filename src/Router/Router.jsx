@@ -73,6 +73,10 @@ const router = createBrowserRouter([
                 
             },
             {
+                path: '/english-vocab/everyday-Word/extra-section/:code',
+                element: <PrivateRoutes><EverydayWordSectionDetail></EverydayWordSectionDetail></PrivateRoutes>
+            },
+            {
                 path: '/coming-soon',
                 Component: ComingSoon
             },

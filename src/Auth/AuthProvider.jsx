@@ -254,6 +254,201 @@
 // export default AuthProvider;
 
 
+// import React, { useEffect, useRef, useState } from 'react';
+// import axios from 'axios';
+// import { AuthContext } from './AuthContext';
+// import {
+//     createUserWithEmailAndPassword,
+//     GoogleAuthProvider,
+//     sendPasswordResetEmail,
+//     signInWithEmailAndPassword,
+//     signInWithPopup,
+//     onAuthStateChanged,
+//     signOut
+// } from 'firebase/auth';
+// import { auth } from '../Firebase/Firebase.config';
+
+// // Plain Axios instance outside the component — zero hooks, zero circular dependencies
+// const authClient = axios.create({
+//     baseURL: 'https://astembd-server.onrender.com',
+//     withCredentials: true,
+//     headers: {
+//         'X-Requested-With': 'XMLHttpRequest'
+//     }
+// });
+
+// const googleProvider = new GoogleAuthProvider();
+// googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+// const AuthProvider = ({ children }) => {
+//     const [user, setUser] = useState(null);
+//     const [loading, setLoading] = useState(true);
+//     const [authStatus, setAuthStatus] = useState('loading');
+//     const [paymentStatus, setPaymentStatus] = useState(null); // 'paid' | 'pending' | 'unpaid' | null
+//     const creatingServerSession = useRef(false);
+
+//     useEffect(() => {
+//         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+//             setUser(currentUser);
+
+//             if (!currentUser) {
+//                 setAuthStatus('not-authenticated');
+//                 setPaymentStatus(null);
+//                 setLoading(false);
+//                 return;
+//             }
+
+//             if (creatingServerSession.current) {
+//                 setLoading(false);
+//                 return;
+//             }
+
+//             setLoading(false);
+//         });
+
+//         return () => unsubscribe();
+//     }, []);
+
+//     // Check session status strictly via HttpOnly cookie
+//     const checkAuthStatus = async () => {
+//         try {
+//             const response = await authClient.get('/auth/me');
+//             const data = response.data;
+
+//             // Set admin or standard user status
+//             if (data.isAdmin === true) {
+//                 setAuthStatus('admin');
+//             } else {
+//                 setAuthStatus('user');
+//             }
+
+//             // Set payment status returned from paymentInfo query
+//             setPaymentStatus((data.paymentStatus || 'unpaid').toLowerCase());
+//         } catch (error) {
+//             console.error('Authentication status check failed:', error);
+//             setAuthStatus('not-authenticated');
+//             setPaymentStatus(null);
+//         }
+//     };
+
+//     useEffect(() => {
+//         if (loading) return;
+
+//         if (!user) {
+//             setAuthStatus('not-authenticated');
+//             setPaymentStatus(null);
+//             return;
+//         }
+
+//         if (creatingServerSession.current) return;
+
+//         checkAuthStatus();
+//     }, [user, loading]);
+
+//     // Create server session cookie (one-time handshake with ID token)
+//     const createServerSession = async (firebaseUser) => {
+//         const idToken = await firebaseUser.getIdToken();
+
+//         const response = await authClient.post(
+//             '/auth/session',
+//             {},
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${idToken}`
+//                 }
+//             }
+//         );
+
+//         await checkAuthStatus();
+//         return response.data;
+//     };
+
+//     // User registration
+//     const userRegistration = async (email, password) => {
+//         try {
+//             creatingServerSession.current = true;
+//             const result = await createUserWithEmailAndPassword(auth, email, password);
+//             await createServerSession(result.user);
+//             creatingServerSession.current = false;
+//             return result;
+//         } catch (error) {
+//             creatingServerSession.current = false;
+//             throw error;
+//         }
+//     };
+
+//     // User sign in
+//     const userSignIn = async (email, password) => {
+//         try {
+//             creatingServerSession.current = true;
+//             const result = await signInWithEmailAndPassword(auth, email, password);
+//             await createServerSession(result.user);
+//             creatingServerSession.current = false;
+//             return result;
+//         } catch (error) {
+//             creatingServerSession.current = false;
+//             console.error('Firebase email login error:', error);
+//             throw error;
+//         }
+//     };
+
+//     // Google sign in
+//     const userLoginWithGoole = async () => {
+//         try {
+//             creatingServerSession.current = true;
+//             const result = await signInWithPopup(auth, googleProvider);
+//             await createServerSession(result.user);
+//             creatingServerSession.current = false;
+//             return result;
+//         } catch (error) {
+//             creatingServerSession.current = false;
+//             throw error;
+//         }
+//     };
+
+//     // Reset password
+//     const resetPassword = (email) => {
+//         return sendPasswordResetEmail(auth, email);
+//     };
+
+//     // User logout
+//     const userLogout = async () => {
+//         try {
+//             // Clear server-side HttpOnly session cookie
+//             await authClient.post('/auth/logout');
+//         } catch (error) {
+//             console.error('Server logout notice:', error);
+//         } finally {
+//             // Always sign out client state even if backend logout throws
+//             await signOut(auth);
+//             setUser(null);
+//             setAuthStatus('not-authenticated');
+//             setPaymentStatus(null);
+//         }
+//     };
+
+//     const authInfo = {
+//         userRegistration,
+//         userSignIn,
+//         userLoginWithGoole,
+//         authStatus,
+//         paymentStatus,
+//         checkAuthStatus,
+//         resetPassword,
+//         userLogout,
+//         user,
+//         loading
+//     };
+
+//     return (
+//         <AuthContext.Provider value={authInfo}>
+//             {children}
+//         </AuthContext.Provider>
+//     );
+// };
+
+// export default AuthProvider;
+
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
@@ -315,14 +510,14 @@ const AuthProvider = ({ children }) => {
             const response = await authClient.get('/auth/me');
             const data = response.data;
 
-            // Set admin or standard user status
+            // Strict dual-verified admin verdict from backend
             if (data.isAdmin === true) {
                 setAuthStatus('admin');
             } else {
                 setAuthStatus('user');
             }
 
-            // Set payment status returned from paymentInfo query
+            // Set payment status returned from live DB check
             setPaymentStatus((data.paymentStatus || 'unpaid').toLowerCase());
         } catch (error) {
             console.error('Authentication status check failed:', error);
@@ -347,20 +542,36 @@ const AuthProvider = ({ children }) => {
 
     // Create server session cookie (one-time handshake with ID token)
     const createServerSession = async (firebaseUser) => {
-        const idToken = await firebaseUser.getIdToken();
+        try {
+            const idToken = await firebaseUser.getIdToken();
 
-        const response = await authClient.post(
-            '/auth/session',
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${idToken}`
+            const response = await authClient.post(
+                '/auth/session',
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${idToken}`
+                    }
                 }
-            }
-        );
+            );
 
-        await checkAuthStatus();
-        return response.data;
+            await checkAuthStatus();
+            return response.data;
+        } catch (error) {
+            // If dual-check rejected the account (Firebase disabled or DB blocked)
+            if (error.response?.status === 403 || error.response?.status === 401) {
+                await signOut(auth);
+                setUser(null);
+                setAuthStatus('not-authenticated');
+                setPaymentStatus(null);
+
+                const customMessage = error.response?.data?.message || 'Access denied: Your account is blocked or disabled.';
+                const err = new Error(customMessage);
+                err.status = error.response?.status;
+                throw err;
+            }
+            throw error;
+        }
     };
 
     // User registration
@@ -369,11 +580,9 @@ const AuthProvider = ({ children }) => {
             creatingServerSession.current = true;
             const result = await createUserWithEmailAndPassword(auth, email, password);
             await createServerSession(result.user);
-            creatingServerSession.current = false;
             return result;
-        } catch (error) {
+        } finally {
             creatingServerSession.current = false;
-            throw error;
         }
     };
 
@@ -383,12 +592,12 @@ const AuthProvider = ({ children }) => {
             creatingServerSession.current = true;
             const result = await signInWithEmailAndPassword(auth, email, password);
             await createServerSession(result.user);
-            creatingServerSession.current = false;
             return result;
         } catch (error) {
-            creatingServerSession.current = false;
             console.error('Firebase email login error:', error);
             throw error;
+        } finally {
+            creatingServerSession.current = false;
         }
     };
 
@@ -398,11 +607,12 @@ const AuthProvider = ({ children }) => {
             creatingServerSession.current = true;
             const result = await signInWithPopup(auth, googleProvider);
             await createServerSession(result.user);
-            creatingServerSession.current = false;
             return result;
         } catch (error) {
-            creatingServerSession.current = false;
+            console.error('Google sign in error:', error);
             throw error;
+        } finally {
+            creatingServerSession.current = false;
         }
     };
 

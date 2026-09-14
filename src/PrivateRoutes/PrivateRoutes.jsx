@@ -1,6 +1,3 @@
-
-
-
 import React from 'react';
 import { Navigate, useLocation } from 'react-router';
 import useAuth from '../Hooks/useAuth';
