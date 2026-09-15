@@ -100,7 +100,7 @@ const router = createBrowserRouter([
                 element: <AdminRoute><ScreenshotAuditLogs></ScreenshotAuditLogs></AdminRoute>
             },
             {
-                path: '/data-addition',
+                path: '/data-manipulation',
                 element: <AdminRoute><DocumentPage></DocumentPage></AdminRoute>
             },
             {
