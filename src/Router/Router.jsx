@@ -19,6 +19,8 @@ import PaymentHistory from "../component/PaymentHistory"
 import CSE from "../component/CSE"
 import ScreenshotAuditLogs from "../component/ScreenshotAuditLogs"
 import RegularExtraVocabWordDetails from "../component/RegularExtraVocabWordDetails"
+import DocumentPage from "../component/DocumentPage"
+import SectionEditor from "../component/SectionEditor"
 
 
 
@@ -96,6 +98,18 @@ const router = createBrowserRouter([
             {
                 path: '/user-log',
                 element: <AdminRoute><ScreenshotAuditLogs></ScreenshotAuditLogs></AdminRoute>
+            },
+            {
+                path: '/data-addition',
+                element: <AdminRoute><DocumentPage></DocumentPage></AdminRoute>
+            },
+            {
+                path: '/english-vocab/everyday-Word/section-edit/:sectionNumber',
+                element: <AdminRoute><SectionEditor></SectionEditor></AdminRoute>
+            },
+            {
+                path: '/english-vocab/everyday-Word/extra-section-edit/:code',
+                element: <AdminRoute><SectionEditor></SectionEditor></AdminRoute>
             }
         ]
     }

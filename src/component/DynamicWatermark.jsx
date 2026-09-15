@@ -1,72 +1,3 @@
-// import React, { useEffect, useRef } from 'react';
-// import useAuth from '../Hooks/useAuth';
-
-// const DynamicWatermark = () => {
-//   const { user } = useAuth();
-//   const canvasRef = useRef(null);
-
-//   useEffect(() => {
-//     const canvas = canvasRef.current;
-//     if (!canvas || !user?.email) return;
-
-//     const ctx = canvas.getContext('2d');
-//     let animationFrame;
-
-//     const render = () => {
-//       canvas.width = window.innerWidth;
-//       canvas.height = window.innerHeight;
-
-//       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//       ctx.font = '600 13px monospace';
-//       ctx.fillStyle = 'rgba(100, 116, 139, 0.08)';
-//       ctx.rotate((-20 * Math.PI) / 180);
-
-//       // Format current timestamp strictly in Bangladesh Standard Time (BST)
-//       const bdTimeString = new Intl.DateTimeFormat('en-GB', {
-//         timeZone: 'Asia/Dhaka',
-//         day: '2-digit',
-//         month: 'short',
-//         year: 'numeric',
-//         hour: '2-digit',
-//         minute: '2-digit',
-//         hour12: true,
-//       }).format(new Date()); // e.g., "14 Sept 2026, 12:00 am"
-
-//       const text = `${user.email} • ${bdTimeString}`;
-
-//       const stepX = 280;
-//       const stepY = 120;
-
-//       for (let x = -canvas.width; x < canvas.width * 2; x += stepX) {
-//         for (let y = -canvas.height; y < canvas.height * 2; y += stepY) {
-//           ctx.fillText(text, x, y);
-//         }
-//       }
-//     };
-
-//     render();
-//     window.addEventListener('resize', render);
-
-//     return () => {
-//       window.removeEventListener('resize', render);
-//       cancelAnimationFrame(animationFrame);
-//     };
-//   }, [user]);
-
-//   if (!user) return null;
-
-//   return (
-//     <canvas
-//       ref={canvasRef}
-//       aria-hidden="true"
-//       className="pointer-events-none fixed inset-0 z-[9999] select-none"
-//     />
-//   );
-// };
-
-// export default DynamicWatermark;
-
 import React, { useEffect, useRef } from 'react';
 import useAuth from '../Hooks/useAuth';
 
@@ -87,8 +18,17 @@ const DynamicWatermark = () => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Detect dark mode from html/body class or system preference
+      const isDarkMode =
+        document.documentElement.classList.contains('dark') ||
+        document.body.classList.contains('dark') ||
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
+
       ctx.font = '600 13px monospace';
-      ctx.fillStyle = 'rgba(100, 116, 139, 0.1)';
+      // Dark mode: semi-transparent white; Light mode: semi-transparent slate
+      ctx.fillStyle = isDarkMode
+        ? 'rgba(255, 255, 255, 0.18)'
+        : 'rgba(100, 116, 139, 0.16)';
 
       // Format current timestamp strictly in Bangladesh Standard Time (BST)
       const bdTimeString = new Intl.DateTimeFormat('en-GB', {
@@ -132,10 +72,27 @@ const DynamicWatermark = () => {
     };
 
     render();
+
+    // Listen for window resize
     window.addEventListener('resize', render);
+
+    // Watch for theme toggles (dark/light mode class change on <html>)
+    const observer = new MutationObserver(() => {
+      render();
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    // Also listen for system dark mode changes
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeMediaQuery.addEventListener('change', render);
 
     return () => {
       window.removeEventListener('resize', render);
+      darkModeMediaQuery.removeEventListener('change', render);
+      observer.disconnect();
       cancelAnimationFrame(animationFrame);
     };
   }, [user]);

@@ -30,6 +30,7 @@ const Navbar = () => {
     { name: 'CSE', path: '/cse' },
     { name: 'HSC', path: '/hsc' },
     { name: 'SSC', path: '/ssc' },
+    { name: 'Data Addition', path: '/data-addition' },
     
     // { name: 'Payment', path: '/payment' },
     { name: 'Payment History', path: '/payment-history', adminOnly: true },
