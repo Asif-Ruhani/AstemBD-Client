@@ -1503,9 +1503,6 @@ const EverydayWordSectionDetail = () => {
           >
             <span className="text-base">☰</span>
             <span>See all sections</span>
-            <span className="bg-slate-800 dark:bg-zinc-200 text-slate-200 dark:text-zinc-800 px-2 py-0.5 rounded-full text-xs font-mono">
-              {sectionNumber}
-            </span>
           </button>
         </div>
       </div>
