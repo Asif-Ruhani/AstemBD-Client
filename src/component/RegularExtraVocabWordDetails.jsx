@@ -559,7 +559,7 @@ const RegularExtraVocabWordDetails = () => {
                                     All Sections
                                 </h2>
                                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                                    Click any theme to view words
+                                    Click any Section to view words
                                 </p>
                             </div>
                             <button
@@ -585,7 +585,7 @@ const RegularExtraVocabWordDetails = () => {
                             ) : Array.isArray(sectionsList) && sectionsList.length > 0 ? (
                                 sectionsList.map((sec, idx) => {
                                     const sectionCode = sec.code ?? sec.theme?.code ?? sec.sectionNumber ?? idx + 1;
-                                    const sectionTitle = sec.title ?? sec.theme?.title ?? `Theme ${sectionCode}`;
+                                    const sectionTitle = sec.title ?? sec.theme?.title ?? `Section ${sectionCode}`;
                                     const sectionIcon = sec.icon ?? sec.theme?.icon ?? "📖";
                                     const isSelected = String(code) === String(sectionCode);
 
@@ -611,7 +611,7 @@ const RegularExtraVocabWordDetails = () => {
                                                                 : "text-slate-500 dark:text-zinc-400"
                                                             }`}
                                                     >
-                                                        Theme #{sectionCode}
+                                                        Section-{sectionCode}
                                                     </p>
                                                 </div>
                                             </div>
@@ -644,7 +644,7 @@ const RegularExtraVocabWordDetails = () => {
                                     <div className="space-y-1.5">
                                         <div className="inline-flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-zinc-300">
                                             <span className="text-base">{theme.icon || "📚"}</span>
-                                            <span>Theme {theme.code ?? code ?? "--"}</span>
+                                            <span>Section-{theme.code ?? code ?? "--"}</span>
                                         </div>
                                         <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-snug">
                                             {theme.title || "Thematic Vocabulary"}
@@ -725,7 +725,7 @@ const RegularExtraVocabWordDetails = () => {
                                                     <div>
                                                         <div className="flex items-start justify-between gap-3">
                                                             <h2 className="text-lg sm:text-xl font-bold capitalize text-slate-900 dark:text-white">
-                                                                {item.word}
+                                                                {item.word || item.phrase}
                                                             </h2>
                                                             <button
                                                                 type="button"
@@ -855,7 +855,7 @@ const RegularExtraVocabWordDetails = () => {
                                     {currentItems.length === 0 && (
                                         <div className="col-span-full py-16 text-center text-slate-400 dark:text-zinc-500">
                                             <p className="text-sm sm:text-base font-bold">
-                                                No {activeTab} recorded in this theme yet.
+                                                No {activeTab} recorded in this Section yet.
                                             </p>
                                         </div>
                                     )}
