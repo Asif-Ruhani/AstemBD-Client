@@ -253,11 +253,11 @@ const Navbar = () => {
 
   const allNavLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Eng Vocab', path: '/english-vocab' },
-    { name: 'Study Abroad', path: '/study-abroad' },
-    { name: 'CSE', path: '/cse' },
-    { name: 'HSC', path: '/hsc' },
-    { name: 'SSC', path: '/ssc' },
+    { name: 'Eng Vocab', path: '/courses/english-vocabulary' },
+    { name: 'Study Abroad', path: '/courses/study-abroad-courses' },
+    { name: 'CSE', path: '/courses/cse-courses' },
+    { name: 'HSC', path: '/courses/hsc-courses' },
+    { name: 'SSC', path: '/courses/ssc-courses' },
     { name: 'My Courses', path: '/my-courses' },
     { name: 'Data Manipulation', path: '/data-manipulation', adminOnly: true },
     { name: 'Payment History', path: '/payment-history', adminOnly: true },

@@ -11,7 +11,6 @@ const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || location.state?.from;
 
   const [instructionData, setInstructionData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -219,7 +218,7 @@ const Payment = () => {
         icon: 'success',
         title: activeAlerts?.successTitle || 'Submission Successful',
         text: activeAlerts?.successText || 'Your payment details have been submitted for verification.',
-        confirmButtonColor: '#0f172a'
+        confirmButtonColor: '#008000'
       });
 
       if (checkAuthStatus) {
@@ -234,7 +233,7 @@ const Payment = () => {
         email: user.email
       });
       setSelectedCourseIds([]);
-      navigate(from, { replace: true });
+
     } catch (err) {
       console.error('Submission error:', err);
       const activeAlerts = instructionData?.content?.[lang]?.alerts;
@@ -294,8 +293,8 @@ const Payment = () => {
               type="button"
               onClick={() => setLang('en')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${lang === 'en'
-                  ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-zinc-700'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-zinc-700'
+                : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
             >
               EN
@@ -304,8 +303,8 @@ const Payment = () => {
               type="button"
               onClick={() => setLang('bn')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${lang === 'bn'
-                  ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-zinc-700'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-zinc-700'
+                : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
             >
               BN
@@ -344,8 +343,8 @@ const Payment = () => {
                           key={bundleKey || index}
                           onClick={() => handleCourseToggle(bundleKey)}
                           className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer select-none transition-all ${isChecked
-                              ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-md ring-1 ring-emerald-500'
-                              : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700'
+                            ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-md ring-1 ring-emerald-500'
+                            : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700'
                             }`}
                         >
                           <div className="flex items-center gap-3.5">
@@ -394,8 +393,8 @@ const Payment = () => {
                             key={courseKey}
                             onClick={() => handleCourseToggle(courseKey)}
                             className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer select-none transition-all ${isChecked
-                                ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-md ring-1 ring-emerald-500'
-                                : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700'
+                              ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-md ring-1 ring-emerald-500'
+                              : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700'
                               }`}
                           >
                             <div className="flex items-center gap-3.5">
@@ -534,8 +533,8 @@ const Payment = () => {
                       }
                     })}
                     className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 transition ${errors.senderPhone
-                        ? 'border-rose-500 focus:ring-rose-500'
-                        : 'border-slate-300 dark:border-zinc-700 focus:ring-indigo-600'
+                      ? 'border-rose-500 focus:ring-rose-500'
+                      : 'border-slate-300 dark:border-zinc-700 focus:ring-indigo-600'
                       }`}
                   />
                   {errors.senderPhone && (
@@ -558,8 +557,8 @@ const Payment = () => {
                       }
                     })}
                     className={`w-full px-4 py-3 rounded-xl border font-mono uppercase bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-sm font-black tracking-wider focus:outline-none focus:ring-2 transition ${errors.transactionId
-                        ? 'border-rose-500 focus:ring-rose-500'
-                        : 'border-slate-300 dark:border-zinc-700 focus:ring-indigo-600'
+                      ? 'border-rose-500 focus:ring-rose-500'
+                      : 'border-slate-300 dark:border-zinc-700 focus:ring-indigo-600'
                       }`}
                   />
                   {errors.transactionId && (
