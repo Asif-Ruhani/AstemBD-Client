@@ -1,258 +1,4 @@
 
-// import React, { useEffect, useRef, useState } from 'react'
-// import { AuthContext } from './AuthContext'
-// import { createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
-// import { auth } from '../Firebase/Firebase.config'
-
-// const googleProvider = new GoogleAuthProvider();
-// googleProvider.setCustomParameters({ prompt: 'select_account' });
-
-// const AuthProvider = ({ children }) => {
-
-//     const [user, setUser] = useState(null);
-//     const [loading, setLoading] = useState(true);
-//     const [authStatus, setAuthStatus] = useState('loading');
-//     const creatingServerSession = useRef(false);
-
-//     useEffect(() => {
-//         const unsubscribe = onAuthStateChanged(
-//             auth,
-//             (currentUser) => {
-//                 setUser(currentUser);
-
-//                 if (!currentUser) {
-//                     setAuthStatus('not-authenticated');
-//                     setLoading(false);
-//                     return;
-//                 }
-
-//                 // During login/registration, wait for
-//                 // createServerSession() to finish.
-//                 if (creatingServerSession.current) {
-//                     setLoading(false);
-//                     return;
-//                 }
-
-//                 setLoading(false);
-//             }
-//         );
-
-//         return () => unsubscribe();
-//     }, []);
-
-//     const checkAuthStatus = async () => {
-//         try {
-//             // Get fresh ID token from Firebase Client SDK
-//             const currentUser = auth.currentUser;
-//             const idToken = currentUser ? await currentUser.getIdToken() : null;
-
-//             const headers = {};
-//             if (idToken) {
-//                 headers['Authorization'] = `Bearer ${idToken}`;
-//             }
-
-//             const response = await fetch(
-//                 'https://astembd-server.onrender.com/auth/me',
-//                 {
-//                     method: 'GET',
-//                     credentials: 'include',
-//                     headers
-//                 }
-//             );
-
-//             if (!response.ok) {
-//                 setAuthStatus('not-authenticated');
-//                 return;
-//             }
-
-//             const data = await response.json();
-
-//             if (data.isAdmin === true) {
-//                 setAuthStatus('admin');
-//             } else {
-//                 setAuthStatus('user');
-//             }
-
-//         } catch (error) {
-//             console.error(
-//                 'Authentication status check failed:',
-//                 error
-//             );
-
-//             setAuthStatus('not-authenticated');
-//         }
-//     };
-
-//     useEffect(() => {
-//         if (loading) {
-//             return;
-//         }
-
-//         if (!user) {
-//             setAuthStatus('not-authenticated');
-//             return;
-//         }
-
-//         if (creatingServerSession.current) {
-//             return;
-//         }
-
-//         checkAuthStatus();
-//     }, [user, loading]);
-
-//     // user registration
-//     const userRegistration = async (email, password) => {
-//         try {
-//             creatingServerSession.current = true;
-
-//             const result = await createUserWithEmailAndPassword(
-//                 auth,
-//                 email,
-//                 password
-//             );
-
-//             await createServerSession(result.user);
-
-//             creatingServerSession.current = false;
-
-//             return result;
-//         } catch (error) {
-//             creatingServerSession.current = false;
-//             throw error;
-//         }
-//     };
-
-//     // user login / sign in
-//     const userSignIn = async (email, password) => {
-//         try {
-//             creatingServerSession.current = true;
-
-//             const result = await signInWithEmailAndPassword(
-//                 auth,
-//                 email,
-//                 password
-//             );
-
-//             await createServerSession(result.user);
-
-//             creatingServerSession.current = false;
-
-//             return result;
-//         } catch (error) {
-//             creatingServerSession.current = false;
-
-//             console.error(
-//                 "Firebase email login error:",
-//                 error
-//             );
-
-//             throw error;
-//         }
-//     };
-
-//     // user login with google
-//     const userLoginWithGoole = async () => {
-//         try {
-//             creatingServerSession.current = true;
-
-//             const result = await signInWithPopup(
-//                 auth,
-//                 googleProvider
-//             );
-
-//             await createServerSession(result.user);
-
-//             creatingServerSession.current = false;
-
-//             return result;
-//         } catch (error) {
-//             creatingServerSession.current = false;
-//             throw error;
-//         }
-//     };
-
-//     const createServerSession = async (firebaseUser) => {
-//         const idToken = await firebaseUser.getIdToken();
-
-//         const response = await fetch(
-//             'https://astembd-server.onrender.com/auth/session',
-//             {
-//                 method: 'POST',
-//                 credentials: 'include',
-//                 headers: {
-//                     Authorization: `Bearer ${idToken}`
-//                 }
-//             }
-//         );
-
-//         const data = await response.json();
-
-//         if (!response.ok) {
-//             throw new Error(
-//                 data.message || 'Failed to create server session'
-//             );
-//         }
-
-//         await checkAuthStatus();
-
-//         return data;
-//     };
-
-//     // reset password (forgot password)
-//     const resetPassword = (email) => {
-//         return sendPasswordResetEmail(auth, email);
-//     };
-
-//     // user logout
-//     const userLogout = async () => {
-//         try {
-//             // First clear the server-side session cookie
-//             const response = await fetch(
-//                 'https://astembd-server.onrender.com/auth/logout',
-//                 {
-//                     method: 'POST',
-//                     credentials: 'include'
-//                 }
-//             );
-
-//             const data = await response.json();
-
-//             if (!response.ok) {
-//                 throw new Error(
-//                     data.message || 'Server logout failed'
-//                 );
-//             }
-
-//             // After server session is cleared, sign out from Firebase client
-//             await signOut(auth);
-
-//             return data;
-//         } catch (error) {
-//             console.error('Logout failed:', error);
-//             throw error;
-//         }
-//     };
-
-//     const authInfo = {
-//         userRegistration,
-//         userSignIn,
-//         userLoginWithGoole,
-//         authStatus,
-//         resetPassword,
-//         userLogout,
-//         user,
-//         loading
-//     };
-
-//     return (
-//         <AuthContext value={authInfo}>
-//             {children}
-//         </AuthContext>
-//     );
-// };
-
-// export default AuthProvider;
-
 
 // import React, { useEffect, useRef, useState } from 'react';
 // import axios from 'axios';
@@ -285,6 +31,7 @@
 //     const [loading, setLoading] = useState(true);
 //     const [authStatus, setAuthStatus] = useState('loading');
 //     const [paymentStatus, setPaymentStatus] = useState(null); // 'paid' | 'pending' | 'unpaid' | null
+//     const [enrolledCourses, setEnrolledCourses] = useState([]); // Array of active course objects
 //     const creatingServerSession = useRef(false);
 
 //     useEffect(() => {
@@ -294,6 +41,7 @@
 //             if (!currentUser) {
 //                 setAuthStatus('not-authenticated');
 //                 setPaymentStatus(null);
+//                 setEnrolledCourses([]);
 //                 setLoading(false);
 //                 return;
 //             }
@@ -315,19 +63,35 @@
 //             const response = await authClient.get('/auth/me');
 //             const data = response.data;
 
-//             // Set admin or standard user status
+//             // Strict dual-verified admin verdict from backend
 //             if (data.isAdmin === true) {
 //                 setAuthStatus('admin');
 //             } else {
 //                 setAuthStatus('user');
 //             }
 
-//             // Set payment status returned from paymentInfo query
-//             setPaymentStatus((data.paymentStatus || 'unpaid').toLowerCase());
+//             // Filter out any expired courses on the client side
+//             const now = new Date();
+//             const rawCourses = Array.isArray(data.enrolledCourses) ? data.enrolledCourses : [];
+//             const activeCourses = rawCourses.filter((course) => {
+//                 if (course.status !== 'active') return false;
+//                 if (!course.expiresAt) return true;
+//                 return new Date(course.expiresAt) > now;
+//             });
+
+//             setEnrolledCourses(activeCourses);
+
+//             // Maintain fallback paymentStatus: if they have active courses, consider them 'paid'
+//             if (activeCourses.length > 0) {
+//                 setPaymentStatus('paid');
+//             } else {
+//                 setPaymentStatus((data.paymentStatus || 'unpaid').toLowerCase());
+//             }
 //         } catch (error) {
 //             console.error('Authentication status check failed:', error);
 //             setAuthStatus('not-authenticated');
 //             setPaymentStatus(null);
+//             setEnrolledCourses([]);
 //         }
 //     };
 
@@ -337,6 +101,7 @@
 //         if (!user) {
 //             setAuthStatus('not-authenticated');
 //             setPaymentStatus(null);
+//             setEnrolledCourses([]);
 //             return;
 //         }
 
@@ -345,22 +110,44 @@
 //         checkAuthStatus();
 //     }, [user, loading]);
 
+//     // Fast helper to check access to a specific course
+//     const hasAccess = (courseId) => {
+//         if (!courseId) return false;
+//         return enrolledCourses.some((c) => c.courseId === courseId);
+//     };
+
 //     // Create server session cookie (one-time handshake with ID token)
 //     const createServerSession = async (firebaseUser) => {
-//         const idToken = await firebaseUser.getIdToken();
+//         try {
+//             const idToken = await firebaseUser.getIdToken();
 
-//         const response = await authClient.post(
-//             '/auth/session',
-//             {},
-//             {
-//                 headers: {
-//                     Authorization: `Bearer ${idToken}`
+//             const response = await authClient.post(
+//                 '/auth/session',
+//                 {},
+//                 {
+//                     headers: {
+//                         Authorization: `Bearer ${idToken}`
+//                     }
 //                 }
-//             }
-//         );
+//             );
 
-//         await checkAuthStatus();
-//         return response.data;
+//             await checkAuthStatus();
+//             return response.data;
+//         } catch (error) {
+//             if (error.response?.status === 403 || error.response?.status === 401) {
+//                 await signOut(auth);
+//                 setUser(null);
+//                 setAuthStatus('not-authenticated');
+//                 setPaymentStatus(null);
+//                 setEnrolledCourses([]);
+
+//                 const customMessage = error.response?.data?.message || 'Access denied: Your account is blocked or disabled.';
+//                 const err = new Error(customMessage);
+//                 err.status = error.response?.status;
+//                 throw err;
+//             }
+//             throw error;
+//         }
 //     };
 
 //     // User registration
@@ -369,11 +156,9 @@
 //             creatingServerSession.current = true;
 //             const result = await createUserWithEmailAndPassword(auth, email, password);
 //             await createServerSession(result.user);
-//             creatingServerSession.current = false;
 //             return result;
-//         } catch (error) {
+//         } finally {
 //             creatingServerSession.current = false;
-//             throw error;
 //         }
 //     };
 
@@ -383,12 +168,12 @@
 //             creatingServerSession.current = true;
 //             const result = await signInWithEmailAndPassword(auth, email, password);
 //             await createServerSession(result.user);
-//             creatingServerSession.current = false;
 //             return result;
 //         } catch (error) {
-//             creatingServerSession.current = false;
 //             console.error('Firebase email login error:', error);
 //             throw error;
+//         } finally {
+//             creatingServerSession.current = false;
 //         }
 //     };
 
@@ -398,11 +183,12 @@
 //             creatingServerSession.current = true;
 //             const result = await signInWithPopup(auth, googleProvider);
 //             await createServerSession(result.user);
-//             creatingServerSession.current = false;
 //             return result;
 //         } catch (error) {
-//             creatingServerSession.current = false;
+//             console.error('Google sign in error:', error);
 //             throw error;
+//         } finally {
+//             creatingServerSession.current = false;
 //         }
 //     };
 
@@ -414,16 +200,15 @@
 //     // User logout
 //     const userLogout = async () => {
 //         try {
-//             // Clear server-side HttpOnly session cookie
 //             await authClient.post('/auth/logout');
 //         } catch (error) {
 //             console.error('Server logout notice:', error);
 //         } finally {
-//             // Always sign out client state even if backend logout throws
 //             await signOut(auth);
 //             setUser(null);
 //             setAuthStatus('not-authenticated');
 //             setPaymentStatus(null);
+//             setEnrolledCourses([]);
 //         }
 //     };
 
@@ -433,6 +218,8 @@
 //         userLoginWithGoole,
 //         authStatus,
 //         paymentStatus,
+//         enrolledCourses,
+//         hasAccess,
 //         checkAuthStatus,
 //         resetPassword,
 //         userLogout,
@@ -448,6 +235,7 @@
 // };
 
 // export default AuthProvider;
+
 
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
@@ -480,6 +268,7 @@ const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [authStatus, setAuthStatus] = useState('loading');
     const [paymentStatus, setPaymentStatus] = useState(null); // 'paid' | 'pending' | 'unpaid' | null
+    const [enrolledCourses, setEnrolledCourses] = useState([]); // Array of active course objects
     const creatingServerSession = useRef(false);
 
     useEffect(() => {
@@ -489,6 +278,7 @@ const AuthProvider = ({ children }) => {
             if (!currentUser) {
                 setAuthStatus('not-authenticated');
                 setPaymentStatus(null);
+                setEnrolledCourses([]);
                 setLoading(false);
                 return;
             }
@@ -506,6 +296,15 @@ const AuthProvider = ({ children }) => {
 
     // Check session status strictly via HttpOnly cookie
     const checkAuthStatus = async () => {
+
+        // 🛑 Guard: Do not call the backend if there is no Firebase user
+        if (!auth.currentUser && !user) {
+            setAuthStatus('not-authenticated');
+            setPaymentStatus(null);
+            setEnrolledCourses([]);
+            return;
+        }
+
         try {
             const response = await authClient.get('/auth/me');
             const data = response.data;
@@ -517,12 +316,28 @@ const AuthProvider = ({ children }) => {
                 setAuthStatus('user');
             }
 
-            // Set payment status returned from live DB check
-            setPaymentStatus((data.paymentStatus || 'unpaid').toLowerCase());
+            // Filter out any expired courses on the client side
+            const now = new Date();
+            const rawCourses = Array.isArray(data.enrolledCourses) ? data.enrolledCourses : [];
+            const activeCourses = rawCourses.filter((course) => {
+                if (course.status !== 'active') return false;
+                if (!course.expiresAt) return true;
+                return new Date(course.expiresAt) > now;
+            });
+
+            setEnrolledCourses(activeCourses);
+
+            // Maintain fallback paymentStatus: if they have active courses, consider them 'paid'
+            if (activeCourses.length > 0) {
+                setPaymentStatus('paid');
+            } else {
+                setPaymentStatus((data.paymentStatus || 'unpaid').toLowerCase());
+            }
         } catch (error) {
             console.error('Authentication status check failed:', error);
             setAuthStatus('not-authenticated');
             setPaymentStatus(null);
+            setEnrolledCourses([]);
         }
     };
 
@@ -532,6 +347,7 @@ const AuthProvider = ({ children }) => {
         if (!user) {
             setAuthStatus('not-authenticated');
             setPaymentStatus(null);
+            setEnrolledCourses([]);
             return;
         }
 
@@ -539,6 +355,18 @@ const AuthProvider = ({ children }) => {
 
         checkAuthStatus();
     }, [user, loading]);
+
+    // Strict single course access check: ONLY matches exact courseId
+    const hasAccess = (courseId) => {
+        if (!courseId) return false;
+        return enrolledCourses.some((c) => c.courseId === courseId);
+    };
+
+    // Bundle access check: Verifies if the user holds active enrollment in this category track
+    const hasBundleAccess = (categoryKey) => {
+        if (!categoryKey) return false;
+        return enrolledCourses.some((c) => c.category === categoryKey);
+    };
 
     // Create server session cookie (one-time handshake with ID token)
     const createServerSession = async (firebaseUser) => {
@@ -558,12 +386,12 @@ const AuthProvider = ({ children }) => {
             await checkAuthStatus();
             return response.data;
         } catch (error) {
-            // If dual-check rejected the account (Firebase disabled or DB blocked)
             if (error.response?.status === 403 || error.response?.status === 401) {
                 await signOut(auth);
                 setUser(null);
                 setAuthStatus('not-authenticated');
                 setPaymentStatus(null);
+                setEnrolledCourses([]);
 
                 const customMessage = error.response?.data?.message || 'Access denied: Your account is blocked or disabled.';
                 const err = new Error(customMessage);
@@ -624,16 +452,15 @@ const AuthProvider = ({ children }) => {
     // User logout
     const userLogout = async () => {
         try {
-            // Clear server-side HttpOnly session cookie
             await authClient.post('/auth/logout');
         } catch (error) {
             console.error('Server logout notice:', error);
         } finally {
-            // Always sign out client state even if backend logout throws
             await signOut(auth);
             setUser(null);
             setAuthStatus('not-authenticated');
             setPaymentStatus(null);
+            setEnrolledCourses([]);
         }
     };
 
@@ -643,6 +470,9 @@ const AuthProvider = ({ children }) => {
         userLoginWithGoole,
         authStatus,
         paymentStatus,
+        enrolledCourses,
+        hasAccess,
+        hasBundleAccess,
         checkAuthStatus,
         resetPassword,
         userLogout,
@@ -658,3 +488,6 @@ const AuthProvider = ({ children }) => {
 };
 
 export default AuthProvider;
+
+
+

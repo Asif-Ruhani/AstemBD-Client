@@ -6,23 +6,27 @@ import useAxiosPublic from '../Hooks/useAxiosPublic';
 const EnglishVocub = () => {
   const axiosPublic = useAxiosPublic();
 
+
   const {
     data: cards = [],
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ['eng-vocab-courses'],
+    queryKey: ['courses', 'english-vocabulary'],
     queryFn: async () => {
-      const res = await axiosPublic.get('/eng-vocab-courses');
-      return res.data.courses || [];
+      // 1. Matches the category registered in your backend VALID_CATEGORIES array
+      const res = await axiosPublic.get('/courses/english-vocabulary');
+
+      // 2. Extracts data.sections from your backend response envelope
+      return res.data.sections || res.data.courses || [];
     },
-    staleTime: 1000 * 60 * 10, // 10 minutes cache
+    staleTime: 1000 * 60 * 10,
   });
 
   return (
     <section className="bg-slate-50/70 dark:bg-zinc-950 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-3xl mx-auto">
 
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
@@ -49,14 +53,14 @@ const EnglishVocub = () => {
           </div>
         ) : (
           /* Compact 4-Column Responsive Grid matching CSE & SSC modules */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {cards.map((card) => (
               <div
                 key={card._id || card.courseId || card.id}
                 className="relative flex flex-col justify-between bg-white dark:bg-zinc-900 rounded-2xl border-2 border-slate-200/80 dark:border-zinc-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.14)] hover:border-slate-300 dark:hover:border-zinc-700 hover:-translate-y-1.5 transition-all duration-200 overflow-hidden"
               >
                 {/* Colored Top Banner Line */}
-                <div className={`h-1.5 w-full bg-gradient-to-r ${card.borderTop}`} />
+                {/* <div className={`h-1.5 w-full bg-gradient-to-r ${card.borderTop}`} /> */}
 
                 <div className="p-6 flex flex-col flex-1">
                   {/* Header Row: Icon & Status Badge */}
@@ -103,7 +107,7 @@ const EnglishVocub = () => {
                 <div className="p-6 pt-0">
                   <Link
                     to={card.path}
-                    className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 ${card.btnHover} hover:text-white transition-colors duration-150 flex items-center justify-center gap-2 shadow-sm`}
+                    className="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white hover:bg-emerald-600 dark:bg-white dark:text-slate-900 dark:hover:bg-emerald-600 dark:hover:text-white transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
                   >
                     <span>Start Practice</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,3 +125,4 @@ const EnglishVocub = () => {
 };
 
 export default EnglishVocub;
+

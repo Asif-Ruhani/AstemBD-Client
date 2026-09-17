@@ -30,18 +30,24 @@
 //     { name: 'CSE', path: '/cse' },
 //     { name: 'HSC', path: '/hsc' },
 //     { name: 'SSC', path: '/ssc' },
-//     { name: 'Data Manipulation', path: '/data-manipulation' },
-
-//     // { name: 'Payment', path: '/payment' },
+//     { name: 'Data Manipulation', path: '/data-manipulation', adminOnly: true },
 //     { name: 'Payment History', path: '/payment-history', adminOnly: true },
 //     { name: 'Users', path: '/users', adminOnly: true },
 //     { name: 'User-Log', path: '/user-log', adminOnly: true },
 //   ];
 
-//   // Filter links: non-admins and logged-out users will not see adminOnly items
-//   const visibleNavLinks = allNavLinks.filter(
-//     (link) => !link.adminOnly || authStatus === 'admin'
-//   );
+//   const adminPaths = [
+//     '/',
+//     '/data-manipulation',
+//     '/payment-history',
+//     '/users',
+//     '/user-log',
+//   ];
+
+//   const visibleNavLinks =
+//     authStatus === 'admin'
+//       ? allNavLinks.filter((link) => adminPaths.includes(link.path))
+//       : allNavLinks.filter((link) => !link.adminOnly);
 
 //   const closeMenu = () => {
 //     setMenuOpen(false);
@@ -146,12 +152,10 @@
 //               aria-label="Toggle Menu"
 //             >
 //               {menuOpen ? (
-//                 /* Cross Icon */
 //                 <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 //                 </svg>
 //               ) : (
-//                 /* Hamburger Icon */
 //                 <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
 //                 </svg>
@@ -162,7 +166,6 @@
 //               <ul
 //                 className="dropdown-content mt-3 z-[60] p-4 shadow-2xl bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-800 rounded-2xl w-72 space-y-1.5"
 //               >
-//                 {/* Filtered Navigation Links */}
 //                 {visibleNavLinks.map((link) => {
 //                   const isActive = location.pathname === link.path;
 //                   return (
@@ -181,7 +184,6 @@
 //                   );
 //                 })}
 
-//                 {/* Mobile Auth Buttons */}
 //                 <li className="pt-3 mt-2 border-t border-slate-200 dark:border-zinc-800 space-y-2">
 //                   {user ? (
 //                     <button
@@ -220,6 +222,7 @@
 
 // export default Navbar;
 
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import useAuth from '../Hooks/useAuth';
@@ -229,8 +232,11 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, authStatus, userLogout } = useAuth();
+  const { user, authStatus, userLogout, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Exactly checks your provider's initial loading states
+  const isAuthLoading = loading || authStatus === 'loading';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -252,6 +258,7 @@ const Navbar = () => {
     { name: 'CSE', path: '/cse' },
     { name: 'HSC', path: '/hsc' },
     { name: 'SSC', path: '/ssc' },
+    { name: 'My Courses', path: '/my-courses' },
     { name: 'Data Manipulation', path: '/data-manipulation', adminOnly: true },
     { name: 'Payment History', path: '/payment-history', adminOnly: true },
     { name: 'Users', path: '/users', adminOnly: true },
@@ -266,8 +273,10 @@ const Navbar = () => {
     '/user-log',
   ];
 
-  const visibleNavLinks =
-    authStatus === 'admin'
+  // While auth is resolving, render nothing so neither user nor admin links flash
+  const visibleNavLinks = isAuthLoading
+    ? []
+    : authStatus === 'admin'
       ? allNavLinks.filter((link) => adminPaths.includes(link.path))
       : allNavLinks.filter((link) => !link.adminOnly);
 
@@ -303,12 +312,23 @@ const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
+      className={`relative sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
           ? 'bg-white/85 dark:bg-zinc-950/85 backdrop-blur-md shadow-md border-b border-slate-200/80 dark:border-zinc-800'
           : 'bg-white/70 dark:bg-zinc-950/70 backdrop-blur-sm border-b border-slate-200/40 dark:border-zinc-800/40'
         }`}
     >
-      <div className="w-full px-4 sm:px-8 lg:px-[100px]">
+      {/* Full Blur Shield active for ALL users while loading is true or authStatus is 'loading' */}
+      {isAuthLoading && (
+        <div
+          className="absolute inset-0 z-50 bg-white/75 dark:bg-zinc-950/75 backdrop-blur-2xl transition-opacity duration-300 pointer-events-auto"
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        className={`w-full px-4 sm:px-8 lg:px-[100px] transition-opacity duration-200 ${isAuthLoading ? 'opacity-0 invisible' : 'opacity-100 visible'
+          }`}
+      >
         <div className="flex items-center justify-between h-20">
 
           {/* LEFT: Brand Logo */}
@@ -322,7 +342,7 @@ const Navbar = () => {
           </Link>
 
           {/* CENTER: Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1.5 bg-slate-100/80 dark:bg-zinc-900/80 p-1.5 rounded-full border border-slate-200/60 dark:border-zinc-800">
+          <nav className="hidden lg:flex items-center gap-1.5 bg-slate-100/80 dark:bg-zinc-900/80 p-1.5 rounded-full border border-slate-200/60 dark:border-zinc-800 min-h-[46px]">
             {visibleNavLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
@@ -342,21 +362,24 @@ const Navbar = () => {
 
           {/* RIGHT (DESKTOP): Auth Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            {user ? (
-              <button
-                onClick={handleSignOut}
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
-              >
-                Sign Out
-              </button>
-            ) : (
-              <Link
-                to="/login"
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors"
-              >
-                Sign In
-              </Link>
+            {!isAuthLoading && (
+              user ? (
+                <button
+                  onClick={handleSignOut}
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors"
+                >
+                  Sign In
+                </Link>
+              )
             )}
+
             <Link
               to="/registration"
               className="px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:bg-primary hover:text-primary-content dark:hover:bg-primary dark:hover:text-primary-content transition-all duration-200 shadow-sm"
@@ -365,7 +388,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* RIGHT (MOBILE/TABLET): Hamburger / Cross Toggle Menu */}
+          {/* RIGHT (MOBILE/TABLET): Hamburger Menu */}
           <div className={`dropdown dropdown-end lg:hidden ${menuOpen ? 'dropdown-open' : ''}`}>
             <button
               type="button"
@@ -385,9 +408,7 @@ const Navbar = () => {
             </button>
 
             {menuOpen && (
-              <ul
-                className="dropdown-content mt-3 z-[60] p-4 shadow-2xl bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-800 rounded-2xl w-72 space-y-1.5"
-              >
+              <ul className="dropdown-content mt-3 z-[60] p-4 shadow-2xl bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-800 rounded-2xl w-72 space-y-1.5">
                 {visibleNavLinks.map((link) => {
                   const isActive = location.pathname === link.path;
                   return (
@@ -407,23 +428,26 @@ const Navbar = () => {
                 })}
 
                 <li className="pt-3 mt-2 border-t border-slate-200 dark:border-zinc-800 space-y-2">
-                  {user ? (
-                    <button
-                      type="button"
-                      onClick={handleSignOut}
-                      className="block w-full text-center py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                    >
-                      Sign Out
-                    </button>
-                  ) : (
-                    <Link
-                      to="/login"
-                      onClick={closeMenu}
-                      className="block w-full text-center py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      Sign In
-                    </Link>
+                  {!isAuthLoading && (
+                    user ? (
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="block w-full text-center py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      >
+                        Sign Out
+                      </button>
+                    ) : (
+                      <Link
+                        to="/login"
+                        onClick={closeMenu}
+                        className="block w-full text-center py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                      >
+                        Sign In
+                      </Link>
+                    )
                   )}
+
                   <Link
                     to="/registration"
                     onClick={closeMenu}

@@ -1,5 +1,5 @@
 // import React, { useState } from 'react';
-// import { Link, useNavigate } from 'react-router';
+// import { Link, useLocation, useNavigate } from 'react-router';
 // import { useForm } from 'react-hook-form';
 // import useAuth from '../Hooks/useAuth';
 // import Swal from 'sweetalert2';
@@ -10,6 +10,10 @@
 //   const { userSignIn, userLoginWithGoole, resetPassword } = useAuth();
 //   const [showPassword, setShowPassword] = useState(false);
 //   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   // Redirect destination: where they came from, or default to home '/'
+//   const from = location.state?.from?.pathname || '/';
 
 //   // Initialize react-hook-form
 //   const {
@@ -17,7 +21,7 @@
 //     handleSubmit,
 //     trigger,
 //     getValues,
-//     formState: { errors }
+//     formState: { errors },
 //   } = useForm({
 //     mode: 'onTouched',
 //     defaultValues: {
@@ -27,24 +31,63 @@
 //     },
 //   });
 
+//   // Reusable custom alert for blocked / disabled accounts
+//   const renderBlockedAlert = () => {
+//     Swal.fire({
+//       icon: 'error',
+//       title: 'Access Denied',
+//       html: `
+//         <div style="font-size: 17px; line-height: 1.6; color: #475569;">
+//           Your account has been blocked for violating our 
+//           <a 
+//             href="/terms-and-conditions" 
+//             target="_blank" 
+//             rel="noopener noreferrer" 
+//             style="color: #2563eb; font-weight: 600; text-decoration: underline;"
+//           >
+//             terms and conditions
+//           </a>.
+//           Please contact <b>+8801783717408</b> for further queries.
+//         </div>
+//       `,
+//       confirmButtonText: 'Understood',
+//       confirmButtonColor: '#0f172a',
+//     });
+//   };
+
 //   const onSubmit = (data) => {
 //     userSignIn(data.email, data.password)
-//       .then((result) => {
+//       .then(() => {
 //         Swal.fire({
-//           position: "top-center",
-//           icon: "success",
-//           title: "Successfully Logged in",
+//           position: 'top',
+//           icon: 'success',
+//           title: 'Successfully Logged in',
 //           showConfirmButton: false,
 //           timer: 1500,
 //         });
-//         navigate('/');
+//         // Navigate back to origin route (e.g. /order)
+//         navigate(from, { replace: true });
 //       })
 //       .catch((error) => {
-//         Swal.fire({
-//           icon: "error",
-//           title: "Login Failed",
-//           text: "Email or Password incorrect",
-//         });
+//         console.error('Login Error:', error);
+
+//         // Catch both Firebase auth/user-disabled and backend dual-check rejections
+//         const isBlocked =
+//           error.code === 'auth/user-disabled' ||
+//           error.message?.includes('auth/user-disabled') ||
+//           error.status === 403 ||
+//           error.message?.toLowerCase().includes('blocked') ||
+//           error.message?.toLowerCase().includes('disabled');
+
+//         if (isBlocked) {
+//           renderBlockedAlert();
+//         } else {
+//           Swal.fire({
+//             icon: 'error',
+//             title: 'Login Failed',
+//             text: 'Email or Password incorrect',
+//           });
+//         }
 //       });
 //   };
 
@@ -52,7 +95,7 @@
 //     try {
 //       const result = await userLoginWithGoole();
 
-//       // 3. Inspect if this is a brand new account created via Google
+//       // Inspect if this is a brand new account created via Google
 //       const additionalInfo = getAdditionalUserInfo(result);
 
 //       if (additionalInfo?.isNewUser) {
@@ -63,27 +106,38 @@
 //       }
 
 //       Swal.fire({
-//         position: "top-center",
-//         icon: "success",
-//         title: "Successfully Logged in",
+//         position: 'top',
+//         icon: 'success',
+//         title: 'Successfully Logged in',
 //         showConfirmButton: false,
 //         timer: 1500,
 //       });
 
-//       navigate('/');
+//       // Navigate back to origin route (e.g. /order)
+//       navigate(from, { replace: true });
 //     } catch (error) {
-//       console.error("Google Login Error:", error);
-//       Swal.fire({
-//         icon: "error",
-//         title: "Google Sign-In Failed",
-//         text: error.message || "An unexpected error occurred during sign-in.",
-//       });
+//       console.error('Google Login Error:', error);
+
+//       const isBlocked =
+//         error.code === 'auth/user-disabled' ||
+//         error.message?.includes('auth/user-disabled') ||
+//         error.status === 403 ||
+//         error.message?.toLowerCase().includes('blocked') ||
+//         error.message?.toLowerCase().includes('disabled');
+
+//       if (isBlocked) {
+//         renderBlockedAlert();
+//       } else {
+//         Swal.fire({
+//           icon: 'error',
+//           title: 'Google Sign-In Failed',
+//           text: error.message || 'An unexpected error occurred during sign-in.',
+//         });
+//       }
 //     }
 //   };
 
-
 //   const handleForgotPassword = async () => {
-//     // Validate the email field specifically
 //     const isEmailValid = await trigger('email');
 
 //     if (!isEmailValid) {
@@ -96,13 +150,20 @@
 //     }
 
 //     const email = getValues('email');
-//     // console.log('Sending password reset email to:', email);
 //     resetPassword(email)
 //       .then(() => {
-//         Swal.fire("Check your email", "Password reset link has been sent!", "success");
+//         Swal.fire({
+//           icon: 'success',
+//           title: 'Check your email',
+//           text: 'Password reset link has been sent!',
+//         });
 //       })
 //       .catch((error) => {
-//         Swal.fire("Error", error.message, "error");
+//         Swal.fire({
+//           icon: 'error',
+//           title: 'Error',
+//           text: error.message,
+//         });
 //       });
 //   };
 
@@ -324,6 +385,7 @@
 // };
 
 // export default Login;
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
@@ -335,6 +397,7 @@ import { saveUserToDatabase } from '../Utils/saveUser';
 const Login = () => {
   const { userSignIn, userLoginWithGoole, resetPassword } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -381,43 +444,47 @@ const Login = () => {
     });
   };
 
-  const onSubmit = (data) => {
-    userSignIn(data.email, data.password)
-      .then(() => {
-        Swal.fire({
-          position: 'top',
-          icon: 'success',
-          title: 'Successfully Logged in',
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        // Navigate back to origin route (e.g. /order)
-        navigate(from, { replace: true });
-      })
-      .catch((error) => {
-        console.error('Login Error:', error);
+  const onSubmit = async (data) => {
+    setIsSubmitting(true); // Start loading
+    try {
+      await userSignIn(data.email, data.password);
 
-        // Catch both Firebase auth/user-disabled and backend dual-check rejections
-        const isBlocked =
-          error.code === 'auth/user-disabled' ||
-          error.message?.includes('auth/user-disabled') ||
-          error.status === 403 ||
-          error.message?.toLowerCase().includes('blocked') ||
-          error.message?.toLowerCase().includes('disabled');
-
-        if (isBlocked) {
-          renderBlockedAlert();
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Login Failed',
-            text: 'Email or Password incorrect',
-          });
-        }
+      Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: 'Successfully Logged in',
+        showConfirmButton: false,
+        timer: 1500,
       });
+
+      // Navigate back to origin route
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error('Login Error:', error);
+
+      const isBlocked =
+        error.code === 'auth/user-disabled' ||
+        error.message?.includes('auth/user-disabled') ||
+        error.status === 403 ||
+        error.message?.toLowerCase().includes('blocked') ||
+        error.message?.toLowerCase().includes('disabled');
+
+      if (isBlocked) {
+        renderBlockedAlert();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: 'Email or Password incorrect',
+        });
+      }
+    } finally {
+      setIsSubmitting(false); // Stop loading
+    }
   };
 
   const handleGoogleLogin = async () => {
+    setIsSubmitting(true); // Start loading
     try {
       const result = await userLoginWithGoole();
 
@@ -439,7 +506,6 @@ const Login = () => {
         timer: 1500,
       });
 
-      // Navigate back to origin route (e.g. /order)
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Google Login Error:', error);
@@ -460,6 +526,8 @@ const Login = () => {
           text: error.message || 'An unexpected error occurred during sign-in.',
         });
       }
+    } finally {
+      setIsSubmitting(false); // Stop loading
     }
   };
 
@@ -494,7 +562,17 @@ const Login = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-slate-100/60 dark:bg-zinc-950 p-4 sm:p-6 lg:p-10">
+    <section className="relative min-h-screen flex items-center justify-center bg-slate-100/60 dark:bg-zinc-950 p-4 sm:p-6 lg:p-10">
+      {/* 🚀 Fullscreen Loading Overlay during login verification */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/40 backdrop-blur-sm">
+          <span className="loading loading-bars loading-lg text-white"></span>
+          <p className="text-white text-sm font-semibold mt-3 tracking-wide">
+            Authenticating...
+          </p>
+        </div>
+      )}
+
       {/* Outer Card Container */}
       <div className="w-full max-w-5xl bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px]">
 
@@ -562,8 +640,9 @@ const Login = () => {
             {/* Google Authentication Button */}
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={handleGoogleLogin}
-              className="w-full py-2.5 px-4 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-zinc-700/60 transition shadow-sm active:scale-[0.99]"
+              className="w-full py-2.5 px-4 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-zinc-700/60 transition shadow-sm active:scale-[0.99] disabled:opacity-50 cursor-pointer"
             >
               <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -603,6 +682,7 @@ const Login = () => {
                   <input
                     type="email"
                     placeholder="Your Email Address"
+                    disabled={isSubmitting}
                     {...register('email', {
                       required: 'Email address is required',
                       pattern: {
@@ -631,8 +711,9 @@ const Login = () => {
                   </label>
                   <button
                     type="button"
+                    disabled={isSubmitting}
                     onClick={handleForgotPassword}
-                    className="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
                   >
                     Forgot password?
                   </button>
@@ -646,6 +727,7 @@ const Login = () => {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
+                    disabled={isSubmitting}
                     {...register('password', {
                       required: 'Password is required',
                     })}
@@ -657,7 +739,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                   >
                     {showPassword ? 'Hide' : 'Show'}
                   </button>
@@ -674,6 +756,7 @@ const Login = () => {
                 <input
                   id="rememberMe"
                   type="checkbox"
+                  disabled={isSubmitting}
                   {...register('rememberMe')}
                   className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                 />
@@ -682,15 +765,25 @@ const Login = () => {
                 </label>
               </div>
 
-              {/* Submit CTA */}
+              {/* Submit CTA with inline loader */}
               <button
                 type="submit"
-                className="w-full mt-2 py-3 px-4 rounded-xl text-sm font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-zinc-100 transition shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="w-full mt-2 py-3 px-4 rounded-xl text-sm font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-zinc-100 transition shadow-md active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
               >
-                <span>Sign In to Dashboard</span>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
+                {isSubmitting ? (
+                  <>
+                    <div className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In to Dashboard</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </>
+                )}
               </button>
             </form>
 
@@ -711,3 +804,4 @@ const Login = () => {
 };
 
 export default Login;
+
