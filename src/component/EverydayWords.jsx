@@ -28,10 +28,8 @@ const EverydayWords = () => {
     // 3. Single course direct ID access (CRS_BEV_CONV_01 or slug variants)
     if (typeof hasAccess === 'function') {
       if (
-        hasAccess('CRS_BEV_CONV_01') ||
-        hasAccess('everyday-word') ||
-        hasAccess('everyday-words') ||
-        hasAccess('basic-eng-vocab')
+        hasAccess('CRS_BEV_CONV_01') 
+        // hasAccess('basic-eng-vocab')
       ) {
         return true;
       }
@@ -39,9 +37,7 @@ const EverydayWords = () => {
 
     // 4. Fallback check directly in user arrays
     const accessList = [
-      ...(Array.isArray(user?.purchasedCourses) ? user.purchasedCourses : []),
-      ...(Array.isArray(user?.enrolledCourses) ? user.enrolledCourses : []),
-      ...(Array.isArray(user?.courses) ? user.courses : [])
+      ...(Array.isArray(user?.purchasedCourses) ? user.purchasedCourses : [])
     ];
 
     return accessList.some((item) => {
@@ -261,7 +257,7 @@ const EverydayWords = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                       </svg>
                     ) : (
-                      <LuLock className="w-3.5 h-3.5 text-black dark:text-black" />
+                      <LuLock className="w-4.5 h-4.5 text-black dark:text-amber-200" />
                     )}
                   </div>
                 </Link>
@@ -336,7 +332,7 @@ const EverydayWords = () => {
                     </div>
 
                     <span className="text-[12px] font-mono text-slate-700 dark:text-zinc-500 flex items-center gap-1">
-                      {!isExtraUnlocked && <LuLock className="w-3 h-3 text-amber-500" />}
+                      {!isExtraUnlocked && <LuLock className="w-4.5 h-4.5 text-black dark:text-amber-500" />}
                       Section-{cat.code}
                     </span>
                   </Link>

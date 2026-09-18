@@ -871,9 +871,7 @@ const EverydayWordSectionDetail = () => {
 
     // 4. Fallback check directly in user arrays
     const accessList = [
-      ...(Array.isArray(user?.purchasedCourses) ? user.purchasedCourses : []),
-      ...(Array.isArray(user?.enrolledCourses) ? user.enrolledCourses : []),
-      ...(Array.isArray(user?.courses) ? user.courses : []),
+      ...(Array.isArray(user?.purchasedCourses) ? user.purchasedCourses : [])
     ];
 
     return accessList.some((item) => {
@@ -1166,14 +1164,14 @@ const EverydayWordSectionDetail = () => {
                             ? "bg-slate-800 text-white border-slate-700 dark:bg-zinc-200 dark:text-zinc-900 dark:border-zinc-300"
                             : isSecUnlocked
                               ? "bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 group-hover:border-slate-300"
-                              : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 dark:border-amber-900/40"
+                              : "bg-amber-50 text-black dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 dark:border-amber-900/40"
                           }`}
                       >
                         {isSecUnlocked ? (
                           "Open →"
                         ) : (
                           <>
-                            <LuLock className="w-3 h-3" />
+                            <LuLock className="w-4 h-4" />
                             Lock
                           </>
                         )}
@@ -1194,7 +1192,7 @@ const EverydayWordSectionDetail = () => {
             {/* Paywall Gate for Direct Access to Locked Sections */}
             {!canViewCurrentSection ? (
               <div className="max-w-2xl mx-auto py-24 px-4 text-center space-y-6">
-                <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-200 dark:border-amber-800 shadow-sm">
+                <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/50 text-black dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-200 dark:border-amber-800 shadow-sm">
                   <LuLock className="w-8 h-8" />
                 </div>
                 <div className="space-y-2">
