@@ -28,8 +28,8 @@ const EverydayWords = () => {
     // 3. Single course direct ID access (CRS_BEV_CONV_01 or slug variants)
     if (typeof hasAccess === 'function') {
       if (
-        hasAccess('CRS_BEV_CONV_01') 
-        // hasAccess('basic-eng-vocab')
+        hasAccess('CRS_BEV_CONV_01') ||
+        hasAccess('basic-eng-vocab')
       ) {
         return true;
       }
@@ -46,9 +46,9 @@ const EverydayWords = () => {
       return (
         cat === 'basic-eng-vocab' ||
         id === 'CRS_BEV_CONV_01' ||
-        id === 'basic-eng-vocab' ||
-        id === 'everyday-word' ||
-        id === 'everyday-words'
+        id === 'basic-eng-vocab'
+        // id === 'everyday-word' ||
+        // id === 'everyday-words'
       );
     });
   }, [authStatus, user, hasAccess, hasBundleAccess]);

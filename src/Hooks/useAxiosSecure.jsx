@@ -22,7 +22,7 @@ const useAxiosSecure = () => {
         const status = error.response?.status;
 
         // If session expired (401) or unauthorized access (403)
-        if (status === 401 || status === 403) {
+        if (status === 401) {
           try {
             if (userLogout) {
               await userLogout();

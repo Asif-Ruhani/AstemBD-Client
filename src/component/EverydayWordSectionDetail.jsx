@@ -860,8 +860,8 @@ const EverydayWordSectionDetail = () => {
     if (typeof hasAccess === "function") {
       if (
         hasAccess("CRS_BEV_CONV_01") ||
-        hasAccess("everyday-word") ||
-        hasAccess("everyday-words") ||
+        // hasAccess("everyday-word") ||
+        // hasAccess("everyday-words") ||
         hasAccess("basic-eng-vocab") ||
         hasAccess("BUNDLE_BASIC_ENG_VOCAB")
       ) {
@@ -881,9 +881,9 @@ const EverydayWordSectionDetail = () => {
         cat === "basic-eng-vocab" ||
         id === "CRS_BEV_CONV_01" ||
         id === "basic-eng-vocab" ||
-        id === "BUNDLE_BASIC_ENG_VOCAB" ||
-        id === "everyday-word" ||
-        id === "everyday-words"
+        id === "BUNDLE_BASIC_ENG_VOCAB"
+        // id === "everyday-word" ||
+        // id === "everyday-words"
       );
     });
   }, [authStatus, user, hasAccess, hasBundleAccess]);
