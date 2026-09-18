@@ -919,7 +919,7 @@ const EverydayWordSectionDetail = () => {
     queryKey: ["sectionDetail", String(sectionNumber)],
     queryFn: async ({ signal }) => {
       const response = await axiosSecure.get(
-        `/everydayWordSectionDetail/${sectionNumber}`,
+        `/section-detail/${sectionNumber}`,
         { signal }
       );
       return response.data || {};

@@ -152,6 +152,7 @@ import ScreenshotAuditLogs from "../component/ScreenshotAuditLogs";
 import DocumentPage from "../component/DocumentPage";
 import PrivateRoutes from "../PrivateRoutes/PrivateRoutes";
 import MyCourses from "../component/MyCourses";
+import SectionEditor from "../component/SectionEditor"
 
 const router = createBrowserRouter([
     {
@@ -197,7 +198,7 @@ const router = createBrowserRouter([
                 Component: EverydayWordSectionDetail
             },
             {
-                path:'/my-courses',
+                path: '/my-courses',
                 element: <PrivateRoutes><MyCourses></MyCourses></PrivateRoutes>
             },
 
@@ -231,6 +232,28 @@ const router = createBrowserRouter([
                 element: (
                     <AdminRoute>
                         <DocumentPage />
+                    </AdminRoute>
+                )
+            },
+            {
+                path: '/section-detail/:sectionNumber',
+                element: (
+                    <AdminRoute>
+                        <SectionEditor></SectionEditor>
+                    </AdminRoute>)
+            },
+            {
+                path: '/extra-section-detail/:code',
+                element: (
+                    <AdminRoute>
+                        <SectionEditor></SectionEditor>
+                    </AdminRoute>)
+            },
+            {
+                path: '/all-courses-edit/:courseId',
+                element: (
+                    <AdminRoute>
+                        <SectionEditor></SectionEditor>
                     </AdminRoute>
                 )
             }

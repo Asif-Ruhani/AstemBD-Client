@@ -81,7 +81,7 @@ const EverydayWords = () => {
   } = useQuery({
     queryKey: ['extraSections'],
     queryFn: async () => {
-      const res = await axiosSecure.get('/extra-vocab/sections');
+      const res = await axiosSecure.get('/extra-vocab-sections');
       return res.data?.sections || res.data || [];
     },
     staleTime: 1000 * 60 * 10,
@@ -261,7 +261,7 @@ const EverydayWords = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                       </svg>
                     ) : (
-                      <LuLock className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                      <LuLock className="w-3.5 h-3.5 text-black dark:text-black" />
                     )}
                   </div>
                 </Link>

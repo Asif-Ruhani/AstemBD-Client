@@ -1,90 +1,770 @@
-import React, { useState } from 'react';
+// import React, { useState, useEffect } from 'react';
 
-const dropdownData = [
+// const dropdownData = [
+//   {
+//     id: 0,
+//     title: 'Courses',
+//     getApi: '/all-courses',
+//     editApi: '/all-courses-edit'
+//   },
+//   {
+//     id: 1,
+//     title: 'English Vocabulary',
+//     children: [
+//       {
+//         id: '1-I',
+//         title: 'Basic English vocabulary',
+//         children: [
+//           {
+//             id: '1-I-a',
+//             title: 'Everyday Conversational English',
+//             children: [
+//               {
+//                 id: '1-1-1',
+//                 title: 'Regular Vocabulary',
+//                 getApi: '/sections',
+//                 editApi: '/english-vocab/everyday-Word/section-edit',
+//               },
+//               {
+//                 id: '1-1-2',
+//                 title: 'Extra Vocabulary',
+//                 getApi: '/extra-vocab/sections',
+//                 editApi: '/english-vocab/everyday-Word/extra-section-edit',
+//               },
+//             ],
+//           },
+//           {
+//             id: '1-I-b',
+//             title: 'Daily Conversational Grammar',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//           {
+//             id: '1-I-c',
+//             title: 'Spoken English Mastery',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//           {
+//             id: '1-I-d',
+//             title: 'Phonetics & Pronunciation',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//         ],
+//       },
+//       {
+//         id: '1-II',
+//         title: 'Advanced English vocabulary',
+//         children: [
+//           {
+//             id: '1-II-a',
+//             title: 'Essential Academic Vocabulary',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//           {
+//             id: '1-II-b',
+//             title: 'Hard High-Yield Vocabulary',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//           {
+//             id: '1-II-c',
+//             title: 'Advanced Elite Vocabulary',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//           {
+//             id: '1-II-d',
+//             title: 'Admission & Job Exam Vocabulary',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//           {
+//             id: '1-II-e',
+//             title: 'Sentence Anatomy & Syntax',
+//             getApi: '/all-courses',
+//             editApi: '/all-courses-edit'
+//           },
+//         ],
+//       },
+//     ],
+//   },
+//   {
+//     id: 2,
+//     title: 'Study Abroad',
+//     children: [
+//       {
+//         id: '2-I',
+//         title: 'Scholarship and Admission Info',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '2-II',
+//         title: 'IELTS Resources',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '2-III',
+//         title: 'GRE Info',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '2-IV',
+//         title: 'Student Counselling',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//     ],
+//   },
+//   {
+//     id: 3,
+//     title: 'Computer Science & Engineering (CSE)',
+//     children: [
+//       {
+//         id: '3-I', title: 'Data Structures',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '3-II', title: 'Design & Analysis of Algorithms',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '3-III', title: 'Operating Systems',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '3-IV', title: 'Computer Architecture & Organization',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '3-V', title: 'Computer Networks',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '3-VI', title: 'Database Management Systems',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '3-VII', title: 'Graph Theory & Combinatorics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '3-VIII', title: 'Theory of Computation & Automata',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//     ],
+//   },
+//   {
+//     id: 4,
+//     title: 'HSC',
+//     children: [
+//       {
+//         id: '4-I', title: 'Physics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '4-II', title: 'Chemistry',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '4-III', title: 'Biology',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '4-IV', title: 'Higher mathematics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//     ],
+//   },
+//   {
+//     id: 5,
+//     title: 'SSC',
+//     children: [
+//       {
+//         id: '5-I', title: 'Physics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '5-II', title: 'Chemistry',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '5-III', title: 'Biology',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '5-IV', title: 'General mathematics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '5-V', title: 'Higher mathematics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//     ],
+//   },
+// ];
+
+// // Helper to check if this item or any of its nested children contains the activeApi
+// function containsActiveChild(item, targetApi) {
+//   if (!targetApi) return false;
+//   if (item.getApi === targetApi) return true;
+//   if (item.children && item.children.length > 0) {
+//     return item.children.some((child) => containsActiveChild(child, targetApi));
+//   }
+//   return false;
+// }
+
+// function MenuItem({ item, level = 0, onSelect, activeApi }) {
+//   const hasChildren = Boolean(item.children && item.children.length > 0);
+//   // Only leaf nodes can be actively selected/highlighted
+//   const isSelected = Boolean(!hasChildren && item.getApi && item.getApi === activeApi);
+//   const isClickable = Boolean(item.getApi || hasChildren);
+
+//   // Auto-expand ancestors if an active child is inside
+//   const [isOpen, setIsOpen] = useState(() => containsActiveChild(item, activeApi));
+//   const [isHovered, setIsHovered] = useState(false);
+
+//   useEffect(() => {
+//     if (containsActiveChild(item, activeApi)) {
+//       setIsOpen(true);
+//     }
+//   }, [activeApi, item]);
+
+//   const handleMouseEnter = () => {
+//     setIsHovered(true);
+//   };
+
+//   const handleMouseLeave = () => {
+//     setIsHovered(false);
+//   };
+
+//   const handleClick = () => {
+//     if (hasChildren) {
+//       // Parents ONLY toggle display of children; no data fetch triggered
+//       setIsOpen((prev) => !prev);
+//     } else if (item.getApi && typeof onSelect === 'function') {
+//       // Leaf nodes trigger data retrieval
+//       onSelect(item);
+//     }
+//   };
+
+//   // Background and text colors with light-gray hover
+//   let bgColor = 'transparent';
+//   let textColor = '#475569'; // Slate 600
+
+//   if (isSelected) {
+//     bgColor = '#e2e8f0';      // Medium slate-gray for selected item
+//     textColor = '#0f172a';    // Dark text
+//   } else if (isHovered) {
+//     bgColor = '#f1f5f9';      // Clean light gray hover
+//     textColor = '#0f172a';    // Slate 900
+//   }
+
+//   if (level === 0 && !isSelected) {
+//     textColor = isHovered ? '#0f172a' : '#1e293b';
+//   }
+
+//   return (
+//     <li
+//       onMouseEnter={handleMouseEnter}
+//       onMouseLeave={handleMouseLeave}
+//       style={{ listStyle: 'none', margin: '2px 0' }}
+//     >
+//       <button
+//         onClick={handleClick}
+//         type="button"
+//         style={{
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: 'space-between',
+//           width: '100%',
+//           padding: '8px 12px',
+//           paddingLeft: `${12 + level * 14}px`,
+//           fontSize: level === 0 ? '13.5px' : '13px',
+//           fontWeight: level === 0 ? 600 : isSelected ? 600 : 500,
+//           color: textColor,
+//           backgroundColor: bgColor,
+//           border: 'none',
+//           borderLeft: isSelected ? '3px solid #64748b' : '3px solid transparent',
+//           borderRadius: isSelected ? '0 6px 6px 0' : '6px',
+//           cursor: isClickable ? 'pointer' : 'default',
+//           textAlign: 'left',
+//           transition: 'background-color 0.15s ease, color 0.15s ease',
+//           outline: 'none',
+//         }}
+//       >
+//         <span
+//           style={{
+//             display: 'flex',
+//             alignItems: 'center',
+//             gap: '8px',
+//             overflow: 'hidden',
+//             textOverflow: 'ellipsis',
+//             whiteSpace: 'nowrap',
+//           }}
+//         >
+//           {/* Dot indicator shown only for selectable leaf items */}
+//           {!hasChildren && item.getApi && (
+//             <span
+//               style={{
+//                 display: 'inline-block',
+//                 width: '6px',
+//                 height: '6px',
+//                 borderRadius: '50%',
+//                 backgroundColor: isSelected ? '#475569' : isHovered ? '#94a3b8' : '#cbd5e1',
+//                 transition: 'background-color 0.15s ease',
+//                 flexShrink: 0,
+//               }}
+//             />
+//           )}
+//           {item.title}
+//         </span>
+
+//         {hasChildren && (
+//           <span
+//             style={{
+//               display: 'flex',
+//               alignItems: 'center',
+//               justifyContent: 'center',
+//               width: '18px',
+//               height: '18px',
+//               borderRadius: '4px',
+//               backgroundColor: isHovered ? '#e2e8f0' : 'transparent',
+//               transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+//               transition: 'transform 0.18s ease, background-color 0.15s ease',
+//               flexShrink: 0,
+//             }}
+//           >
+//             <svg
+//               width="10"
+//               height="10"
+//               viewBox="0 0 10 10"
+//               fill="none"
+//               stroke={isSelected || isHovered ? '#0f172a' : '#94a3b8'}
+//               strokeWidth="1.7"
+//               strokeLinecap="round"
+//               strokeLinejoin="round"
+//             >
+//               <polyline points="3 2 7 5 3 8" />
+//             </svg>
+//           </span>
+//         )}
+//       </button>
+
+//       {/* Nested child list */}
+//       {hasChildren && isOpen && (
+//         <ul
+//           style={{
+//             margin: '2px 0 2px 8px',
+//             padding: 0,
+//             borderLeft: '1px dashed #cbd5e1',
+//           }}
+//         >
+//           {item.children.map((child) => (
+//             <MenuItem
+//               key={child.id}
+//               item={child}
+//               level={level + 1}
+//               onSelect={onSelect}
+//               activeApi={activeApi}
+//             />
+//           ))}
+//         </ul>
+//       )}
+//     </li>
+//   );
+// }
+
+// export default function DropDownItems({ onCategorySelect, onSelect, activeApi }) {
+//   const handleSelectCallback = onCategorySelect || onSelect;
+
+//   return (
+//     <nav
+//       style={{
+//         width: '100%',
+//         fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+//         userSelect: 'none',
+//       }}
+//     >
+//       <div
+//         style={{
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: 'space-between',
+//           padding: '0 8px 12px 10px',
+//           borderBottom: '1px solid #e2e8f0',
+//           marginBottom: '10px',
+//         }}
+//       >
+//         <span
+//           style={{
+//             fontSize: '11px',
+//             fontWeight: 700,
+//             textTransform: 'uppercase',
+//             letterSpacing: '0.08em',
+//             color: '#64748b',
+//           }}
+//         >
+//           Navigation
+//         </span>
+//         <span
+//           style={{
+//             fontSize: '10px',
+//             fontWeight: 600,
+//             padding: '2px 6px',
+//             borderRadius: '9999px',
+//             backgroundColor: '#f1f5f9',
+//             color: '#475569',
+//           }}
+//         >
+//           Catalog
+//         </span>
+//       </div>
+
+//       <ul style={{ margin: 0, padding: 0 }}>
+//         {dropdownData.map((item) => (
+//           <MenuItem
+//             key={item.id}
+//             item={item}
+//             onSelect={handleSelectCallback}
+//             activeApi={activeApi}
+//           />
+//         ))}
+//       </ul>
+//     </nav>
+//   );
+// }
+
+import React, { useState, useEffect } from 'react';
+
+export const dropdownData = [
   {
     id: 1,
-    title: 'English Vocabulary',
-    children: [
-      {
-        id: '1-1',
-        title: 'Everyday conversational english',
-        children: [
-          {
-            id: '1-1-1',
-            title: 'Regular vocabulary',
-            api: '/sections',
-            editRoute: '/english-vocab/everyday-Word/section-edit',
-          },
-          {
-            id: '1-1-2',
-            title: 'Extra vocabulary',
-            api: '/extra-vocab/sections',
-            editRoute: '/english-vocab/everyday-Word/extra-section-edit',
-          },
-        ],
-      },
-      { id: '1-2', title: 'Essential academic vocabulary' },
-      { id: '1-3', title: 'Hard high yield vocabulary' },
-      { id: '1-4', title: 'Advanced elite vocabulary' },
-      { id: '1-5', title: 'Admission & job exam vocabulary' },
-      { id: '1-6', title: 'Daily conversational grammar' },
-      { id: '1-7', title: 'Sentence anatomy & syntax' },
-    ],
+    title: 'Courses',
+    getApi: '/all-courses',
+    editApi: '/all-courses-edit'
   },
   {
     id: 2,
-    title: 'Study Abroad',
+    title: 'English Vocabulary',
     children: [
-      { id: '2-1', title: 'Scholarship and admission info' },
-      { id: '2-2', title: 'IELTS resources' },
-      { id: '2-3', title: 'GRE info' },
-      { id: '2-4', title: 'Student counselling' },
+      {
+        id: '2-I',
+        title: 'Basic English vocabulary',
+        children: [
+          {
+            id: '2-I-a',
+            title: 'Everyday Conversational English',
+            children: [
+              {
+                id: '2-1-1',
+                title: 'Regular Vocabulary',
+                getApi: '/sections',
+                editApi: '/section-detail',
+              },
+              {
+                id: '2-1-2',
+                title: 'Extra Vocabulary',
+                getApi: '/extra-vocab-sections',
+                editApi: '/extra-section-detail',
+              },
+            ],
+          },
+          {
+            id: '2-I-b',
+            title: 'Daily Conversational Grammar',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+          {
+            id: '2-I-c',
+            title: 'Spoken English Mastery',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+          {
+            id: '2-I-d',
+            title: 'Phonetics & Pronunciation',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+        ],
+      },
+      {
+        id: '2-II',
+        title: 'Advanced English vocabulary',
+        children: [
+          {
+            id: '2-II-a',
+            title: 'Essential Academic Vocabulary',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+          {
+            id: '2-II-b',
+            title: 'Hard High-Yield Vocabulary',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+          {
+            id: '2-II-c',
+            title: 'Advanced Elite Vocabulary',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+          {
+            id: '2-II-d',
+            title: 'Admission & Job Exam Vocabulary',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+          {
+            id: '2-II-e',
+            title: 'Sentence Anatomy & Syntax',
+            getApi: '/all-courses',
+            editApi: '/all-courses-edit'
+          },
+        ],
+      },
     ],
   },
-  { id: 3, title: 'Computer Science & Engineering (CSE)' },
-  { id: 4, title: 'HSC' },
-  { id: 5, title: 'SSC' },
+  {
+    id: 3,
+    title: 'Study Abroad',
+    children: [
+      {
+        id: '3-I',
+        title: 'Scholarship and Admission Info',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '3-II',
+        title: 'IELTS Resources',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '3-III',
+        title: 'GRE Info',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '3-IV',
+        title: 'Student Counselling',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+    ],
+  },
+  {
+    id: 4,
+    title: 'Computer Science & Engineering (CSE)',
+    children: [
+      {
+        id: '4-I',
+        title: 'Data Structures',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '4-II',
+        title: 'Design & Analysis of Algorithms',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '4-III',
+        title: 'Operating Systems',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '4-IV',
+        title: 'Computer Architecture & Organization',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '4-V',
+        title: 'Computer Networks',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '4-VI',
+        title: 'Database Management Systems',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '4-VII',
+        title: 'Graph Theory & Combinatorics',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '4-VIII',
+        title: 'Theory of Computation & Automata',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+    ],
+  },
+  {
+    id: 5,
+    title: 'HSC',
+    children: [
+      {
+        id: '5-I',
+        title: 'Physics',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '5-II',
+        title: 'Chemistry',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '5-III',
+        title: 'Biology',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '5-IV',
+        title: 'Higher mathematics',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+    ],
+  },
+  {
+    id: 6,
+    title: 'SSC',
+    children: [
+      {
+        id: '6-I',
+        title: 'Physics',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '6-II',
+        title: 'Chemistry',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '6-III',
+        title: 'Biology',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '6-IV',
+        title: 'General mathematics',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+      {
+        id: '6-V',
+        title: 'Higher mathematics',
+        getApi: '/all-courses',
+        editApi: '/all-courses-edit'
+      },
+    ],
+  },
 ];
 
-function MenuItem({ item, level = 0, onSelect, activeApi }) {
-  const [isOpen, setIsOpen] = useState(false);
+// Add this helper function below dropdownData:
+export function findCategoryById(tree, targetId) {
+  if (!targetId) return null;
+  for (const item of tree) {
+    if (String(item.id) === String(targetId)) return item;
+    if (item.children && item.children.length > 0) {
+      const found = findCategoryById(item.children, targetId);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// Helper to check if this item or any of its nested children matches active identity
+function containsActiveChild(item, activeId, activeApi) {
+  if (!activeId && !activeApi) return false;
+  if ((item.id && item.id === activeId) || (item.getApi && item.getApi === activeApi)) return true;
+  if (item.children && item.children.length > 0) {
+    return item.children.some((child) => containsActiveChild(child, activeId, activeApi));
+  }
+  return false;
+}
+
+function MenuItem({ item, level = 0, onSelect, activeCategory }) {
+  const hasChildren = Boolean(item.children && item.children.length > 0);
+
+  // Dynamic leaf match check
+  const isSelected = Boolean(
+    !hasChildren &&
+    ((activeCategory?.id && item.id === activeCategory.id) ||
+      (activeCategory?.getApi && item.getApi === activeCategory.getApi && item.title === activeCategory.title))
+  );
+
+  const isClickable = Boolean(item.getApi || hasChildren);
+
+  const [isOpen, setIsOpen] = useState(() =>
+    containsActiveChild(item, activeCategory?.id, activeCategory?.getApi)
+  );
   const [isHovered, setIsHovered] = useState(false);
 
-  const hasChildren = Boolean(item.children && item.children.length > 0);
-  const isSelected = Boolean(item.api && item.api === activeApi);
-  const isClickable = Boolean(item.api);
-
-  // Hover handlers for revealing sub-menus
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    if (hasChildren) {
+  useEffect(() => {
+    if (containsActiveChild(item, activeCategory?.id, activeCategory?.getApi)) {
       setIsOpen(true);
     }
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (hasChildren) {
-      setIsOpen(false);
-    }
-  };
+  }, [activeCategory, item]);
 
   const handleClick = () => {
-    if (item.api && typeof onSelect === 'function') {
+    if (hasChildren) {
+      setIsOpen((prev) => !prev);
+    } else if (item.getApi && typeof onSelect === 'function') {
       onSelect(item);
     }
   };
 
-  // Background and text colors with light-gray hover
   let bgColor = 'transparent';
-  let textColor = '#475569'; // Slate 600
+  let textColor = '#475569';
 
   if (isSelected) {
-    bgColor = '#e2e8f0';      // Medium slate-gray for selected item
-    textColor = '#0f172a';    // Dark text
+    bgColor = '#e2e8f0';
+    textColor = '#0f172a';
   } else if (isHovered) {
-    bgColor = '#f1f5f9';      // Clean light gray hover
-    textColor = '#0f172a';    // Slate 900
+    bgColor = '#f1f5f9';
+    textColor = '#0f172a';
   }
 
   if (level === 0 && !isSelected) {
@@ -93,8 +773,8 @@ function MenuItem({ item, level = 0, onSelect, activeApi }) {
 
   return (
     <li
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{ listStyle: 'none', margin: '2px 0' }}
     >
       <button
@@ -114,7 +794,7 @@ function MenuItem({ item, level = 0, onSelect, activeApi }) {
           border: 'none',
           borderLeft: isSelected ? '3px solid #64748b' : '3px solid transparent',
           borderRadius: isSelected ? '0 6px 6px 0' : '6px',
-          cursor: isClickable || hasChildren ? 'pointer' : 'default',
+          cursor: isClickable ? 'pointer' : 'default',
           textAlign: 'left',
           transition: 'background-color 0.15s ease, color 0.15s ease',
           outline: 'none',
@@ -130,7 +810,7 @@ function MenuItem({ item, level = 0, onSelect, activeApi }) {
             whiteSpace: 'nowrap',
           }}
         >
-          {item.api && (
+          {!hasChildren && item.getApi && (
             <span
               style={{
                 display: 'inline-block',
@@ -177,7 +857,6 @@ function MenuItem({ item, level = 0, onSelect, activeApi }) {
         )}
       </button>
 
-      {/* Submenu opens automatically when hovered */}
       {hasChildren && isOpen && (
         <ul
           style={{
@@ -192,7 +871,7 @@ function MenuItem({ item, level = 0, onSelect, activeApi }) {
               item={child}
               level={level + 1}
               onSelect={onSelect}
-              activeApi={activeApi}
+              activeCategory={activeCategory}
             />
           ))}
         </ul>
@@ -201,8 +880,9 @@ function MenuItem({ item, level = 0, onSelect, activeApi }) {
   );
 }
 
-export default function DropDownItems({ onCategorySelect, onSelect, activeApi }) {
+export default function DropDownItems({ onCategorySelect, onSelect, activeCategory, activeApi }) {
   const handleSelectCallback = onCategorySelect || onSelect;
+  const currentCategory = activeCategory || (activeApi ? { getApi: activeApi } : null);
 
   return (
     <nav
@@ -253,7 +933,7 @@ export default function DropDownItems({ onCategorySelect, onSelect, activeApi })
             key={item.id}
             item={item}
             onSelect={handleSelectCallback}
-            activeApi={activeApi}
+            activeCategory={currentCategory}
           />
         ))}
       </ul>
