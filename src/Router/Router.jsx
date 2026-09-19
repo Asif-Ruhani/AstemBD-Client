@@ -8,8 +8,8 @@
 // import { path } from "framer-motion/client"
 // import Login from "../component/Login"
 // import Registration from "../component/Registration"
-// import EverydayWords from "../component/EverydayWords"
-// import EverydayWordSectionDetail from "../component/EverydayWordSectionDetail"
+// import DynamicCourseSections from "../component/DynamicCourseSections"
+// import DynamicSectionDetail from "../component/DynamicSectionDetail"
 // import ComingSoon from "../component/ComingSoon"
 // import PrivateRoutes from "../PrivateRoutes/PrivateRoutes"
 // import AdminRoute from "../PrivateRoutes/AdminRoute"
@@ -74,13 +74,13 @@
 //             },
 //             {
 //                 path: "/english-vocab/basic/everyday-word",
-//                 // element: <PrivateRoutes><EverydayWords></EverydayWords></PrivateRoutes>
-//                 element: <AdminRoute><EverydayWords></EverydayWords></AdminRoute>
+//                 // element: <PrivateRoutes><DynamicCourseSections></DynamicCourseSections></PrivateRoutes>
+//                 element: <AdminRoute><DynamicCourseSections></DynamicCourseSections></AdminRoute>
 //             },
 //             {
 //                 path: '/english-vocab/basic/everyday-Word/section/:sectionNumber',
-//                 element: <PrivateRoutes> <EverydayWordSectionDetail /> </PrivateRoutes>
-//                 // element: <AdminRoute><EverydayWordSectionDetail></EverydayWordSectionDetail></AdminRoute>
+//                 element: <PrivateRoutes> <DynamicSectionDetail /> </PrivateRoutes>
+//                 // element: <AdminRoute><DynamicSectionDetail></DynamicSectionDetail></AdminRoute>
 
 //             },
 //             {
@@ -141,68 +141,92 @@ import ComingSoon from "../component/ComingSoon";
 import Payment from "../component/Payment";
 import Content from "../component/Content";
 
-import EverydayWords from "../component/EverydayWords";
-import EverydayWordSectionDetail from "../component/EverydayWordSectionDetail";
+import DynamicCourseSections from "../component/DynamicCourseSections";
+import DynamicSectionDetail from "../component/DynamicSectionDetail";
 
-// Admin Imports
+// Admin & Protected Imports
 import AdminRoute from "../PrivateRoutes/AdminRoute";
+import PrivateRoutes from "../PrivateRoutes/PrivateRoutes";
 import UserManagement from "../component/UserManagement";
 import PaymentHistory from "../component/PaymentHistory";
 import ScreenshotAuditLogs from "../component/ScreenshotAuditLogs";
 import DocumentPage from "../component/DocumentPage";
-import PrivateRoutes from "../PrivateRoutes/PrivateRoutes";
 import MyCourses from "../component/MyCourses";
-import SectionEditor from "../component/SectionEditor"
+import SectionEditor from "../component/SectionEditor";
 
 const router = createBrowserRouter([
     {
         path: '/',
-        Component: RootLayout,
+        element: <RootLayout />,
         children: [
             // 1. Public & Core Pages
             {
                 index: true,
-                Component: Home
+                element: <Home />
             },
             {
                 path: '/login',
-                Component: Login
+                element: <Login />
             },
             {
                 path: '/registration',
-                Component: Registration
+                element: <Registration />
             },
             {
                 path: '/payment',
-                Component: Payment
+                element: <Payment />
             },
             {
                 path: '/coming-soon',
-                Component: ComingSoon
-            },
-
-            // 2. All Courses Catalog & Content (Public Route, Inline-Gated inside Content.jsx)
-            // Handles both /courses/basic-eng-vocab, /courses/advanced-eng-vocab, /courses/ssc, etc.
-            {
-                path: '/courses/:category',
-                Component: Content
-            },
-
-            // 3. Freemium Everyday English Hub & Sections (Publicly routed, gated within components)
-            {
-                path: '/courses/basic-eng-vocab/everyday-word',
-                Component: EverydayWords
-            },
-            {
-                path: '/courses/basic-eng-vocab/everyday-word/section/:sectionNumber',
-                Component: EverydayWordSectionDetail
+                element: <ComingSoon />
             },
             {
                 path: '/my-courses',
-                element: <PrivateRoutes><MyCourses></MyCourses></PrivateRoutes>
+                element: (
+                    <PrivateRoutes>
+                        <MyCourses />
+                    </PrivateRoutes>
+                )
             },
 
-            // 4. Admin Protected Routes
+            // 2. Backward-Compatible Legacy Paths (For existing links/bookmarks)
+            {
+                path: '/courses/basic-eng-vocab/everyday-word',
+                element: <DynamicCourseSections />
+            },
+            {
+                path: '/courses/basic-eng-vocab/everyday-word/section/:sectionNumber',
+                element: <DynamicSectionDetail />
+            },
+            {
+                path: '/courses/basic-eng-vocab/everyday-word/extra-section/:sectionNumber',
+                element: <DynamicSectionDetail />
+            },
+
+            // 3. Category Catalog View (e.g. /courses/basic-eng-vocab, /courses/cse-courses)
+            {
+                path: '/courses/:category',
+                element: <Content />
+            },
+
+            // 4. Dynamic Polymorphic Course Routes (Works for EVERY course & bundle)
+            // Lists all sections/modules of a course
+            {
+                path: '/courses/:category/:slug',
+                element: <DynamicCourseSections />
+            },
+            // Detail view of a standard section
+            {
+                path: '/courses/:category/:slug/section/:sectionNumber',
+                element: <DynamicSectionDetail />
+            },
+            // Detail view of an extra/supplementary vault section
+            {
+                path: '/courses/:category/:slug/extra-section/:sectionNumber',
+                element: <DynamicSectionDetail />
+            },
+
+            // 5. Admin Protected Routes
             {
                 path: '/users',
                 element: (
@@ -236,7 +260,6 @@ const router = createBrowserRouter([
                 )
             },
             {
-                // Vocabulary Section Editor (Regular & Extra Vocab - both create & edit)
                 path: '/english-vocab-details/:sectionNumber',
                 element: (
                     <AdminRoute>
@@ -245,7 +268,6 @@ const router = createBrowserRouter([
                 )
             },
             {
-                // Course Editor (All Courses & Track specific courses - both create & edit)
                 path: '/all-courses-edit/:courseId',
                 element: (
                     <AdminRoute>

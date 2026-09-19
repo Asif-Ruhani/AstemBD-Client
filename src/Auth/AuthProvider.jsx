@@ -236,7 +236,6 @@
 
 // export default AuthProvider;
 
-
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
@@ -254,6 +253,7 @@ import { auth } from '../Firebase/Firebase.config';
 // Plain Axios instance outside the component — zero hooks, zero circular dependencies
 const authClient = axios.create({
     baseURL: 'https://astembd-server.onrender.com',
+    // baseURL: 'http://localhost:5000',
     withCredentials: true,
     headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -262,6 +262,9 @@ const authClient = axios.create({
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+// Categories that are completely free for all users
+const FREE_CATEGORIES = ['overall-courses', 'english-vocabulary'];
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -296,7 +299,6 @@ const AuthProvider = ({ children }) => {
 
     // Check session status strictly via HttpOnly cookie
     const checkAuthStatus = async () => {
-
         // Guard: Do not call the backend if there is no Firebase user
         if (!auth.currentUser && !user) {
             setAuthStatus('not-authenticated');
@@ -316,7 +318,7 @@ const AuthProvider = ({ children }) => {
                 setAuthStatus('user');
             }
 
-            // Filter out any expired courses on the client side
+            // Client-side expiry boundary check
             const now = new Date();
             const rawCourses = Array.isArray(data.enrolledCourses) ? data.enrolledCourses : [];
             const activeCourses = rawCourses.filter((course) => {
@@ -356,17 +358,126 @@ const AuthProvider = ({ children }) => {
         checkAuthStatus();
     }, [user, loading]);
 
-    // Strict single course access check: ONLY matches exact courseId
-    const hasAccess = (courseId) => {
-        if (!courseId) return false;
-        return enrolledCourses.some((c) => c.courseId === courseId);
-    };
 
-    // Bundle access check: Verifies if the user holds active enrollment in this category track
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Secure Bundle Access Check:
+    // Only returns TRUE if the user holds an active enrollment in this category WITH pricingModel === 'bundle'
+    // const hasBundleAccess = (categoryKey) => {
+    //     if (!categoryKey) return false;
+
+    //     // Free categories are inherently accessible
+    //     if (FREE_CATEGORIES.includes(categoryKey)) return true;
+    //     console.log("hasBundleAccess values: ", enrolledCourses);
+
+    //     return enrolledCourses.some(
+    //         (c) => c.category === categoryKey && (c.pricingModel === 'bundle' || c.category?.includes('vocab'))
+    //     );
+
+    // };
+
+    // Course Access Check (Supports both Single and Bundle unlocked courses):
+    // 1. Unlocks if course belongs to a free category
+    // 2. Unlocks if course belongs to a bundle track the user has paid for
+    // 3. Unlocks if the exact courseId is enrolled (single purchases)
+    // const hasAccess = (courseId, categoryKey = null) => {
+    //     if (!courseId) return false;
+
+    //     // 1. Free category check
+    //     if (categoryKey && FREE_CATEGORIES.includes(categoryKey)) {
+    //         return true;
+    //     }
+
+    //     // 2. Bundle entitlement check
+    //     if (categoryKey && hasBundleAccess(categoryKey)) {
+    //         return true;
+    //     }
+    //     console.log("hasAccess values: ", enrolledCourses);
+
+    //     // 3. Exact courseId check
+    //     return enrolledCourses.some((c) => {
+    //         if (c.courseId === courseId) return true;
+    //         // Fallback: If user holds bundle entitlement under this course's category
+    //         if (categoryKey && c.category === categoryKey && (c.pricingModel === 'bundle' || c.category?.includes('vocab'))) {
+    //             return true;
+    //         }
+    //         return false;
+    //     });
+
+
+    // };
+
+
+
+
+
+    // Secure Bundle Access Check:
+    // Only returns TRUE if the user holds an active enrollment in this category WITH pricingModel === 'bundle'
     const hasBundleAccess = (categoryKey) => {
         if (!categoryKey) return false;
-        return enrolledCourses.some((c) => c.category === categoryKey);
+
+        // Free categories are inherently accessible
+        if (FREE_CATEGORIES.includes(categoryKey)) return true;
+        // console.log("hasBundleAccess values: ", enrolledCourses);
+
+        return enrolledCourses.some(
+            (c) => c.category === categoryKey && (c.pricingModel === 'bundle' || c.category?.includes('vocab'))
+        );
     };
+
+    // Course Access Check (Supports both Single and Bundle unlocked courses):
+    // 1. Unlocks if course belongs to a free category
+    // 2. Unlocks if course belongs to a bundle track the user has paid for
+    // 3. Unlocks if the exact courseId is enrolled (single purchases)
+    const hasAccess = (courseId, categoryKey = null) => {
+        if (!courseId) return false;
+
+        // 1. Free category check
+        if (categoryKey && FREE_CATEGORIES.includes(categoryKey)) {
+            return true;
+        }
+
+        // 2. Bundle entitlement check
+        if (categoryKey && hasBundleAccess(categoryKey)) {
+            return true;
+        }
+        // console.log("hasAccess values: ", enrolledCourses);
+
+        // 3. Exact courseId check (Single purchase)
+        return enrolledCourses.some((c) => String(c.courseId) === String(courseId));
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Create server session cookie (one-time handshake with ID token)
     const createServerSession = async (firebaseUser) => {
@@ -488,6 +599,3 @@ const AuthProvider = ({ children }) => {
 };
 
 export default AuthProvider;
-
-
-

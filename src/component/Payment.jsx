@@ -11,7 +11,6 @@ const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const [instructionData, setInstructionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState('en');
@@ -39,15 +38,16 @@ const Payment = () => {
 
   const currentSelectedMethod = watch('paymentMethod');
 
-  // Helper to reliably extract the key for any item (bundle or individual course)
-  const getItemKey = (item) => item?.courseId || item?.bundleKey || item?.category;
+  // Reliable key extractor for bundles and individual subjects
+  const getItemKey = (item) => item?.bundleKey || item?.courseId || item?.category;
 
+  // 1. Guard: Enforce logged-in state
   useEffect(() => {
     if (!authLoading && !user) {
       Swal.fire({
         icon: 'warning',
-        title: 'Please login first',
-        text: 'You must have an active account to submit payment details',
+        title: 'Authentication Required',
+        text: 'Please log in to your account before proceeding to payment checkout.',
         confirmButtonColor: '#0f172a'
       }).then(() => {
         navigate('/login', { state: { from: location }, replace: true });
@@ -61,6 +61,7 @@ const Payment = () => {
     }
   }, [user, setValue]);
 
+  // 2. Fetch Payment Instructions & Course Catalog
   useEffect(() => {
     const fetchInstructions = async () => {
       setLoading(true);
@@ -74,18 +75,17 @@ const Payment = () => {
             setValue('paymentMethod', resData.data.gateways[0].name);
           }
         } else {
-          throw new Error(resData.message || 'No instruction data returned');
+          throw new Error(resData.message || 'No instruction payload returned');
         }
       } catch (err) {
-        console.error('Fetch instruction error:', err);
-        // 🛑 FIX: Silence the popup if it is just a 401/403 missing auth error
         if (err.response?.status === 401 || err.response?.status === 403) {
           return;
         }
+        console.error('Fetch instruction error:', err);
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: err.response?.data?.message || err.message || 'Could not load payment information'
+          title: 'Gateway Unavailable',
+          text: err.response?.data?.message || err.message || 'Could not load payment configuration'
         });
       } finally {
         setLoading(false);
@@ -108,6 +108,7 @@ const Payment = () => {
     return instructionData?.allSelectableItems || [];
   }, [instructionData]);
 
+  // Dynamic Authoritative Total Calculation matching Backend Formula
   const selectedTotal = useMemo(() => {
     if (selectableItems.length === 0 || selectedCourseIds.length === 0) return 0;
     return selectableItems
@@ -115,20 +116,38 @@ const Payment = () => {
       .reduce((sum, item) => sum + (Number(item.price) || 0), 0);
   }, [selectableItems, selectedCourseIds]);
 
-  // Auto-select course or bundle from router state
+  // 3. Robust Auto-Select Trigger (From Lock Card, Sidebar or Direct Link)
   useEffect(() => {
-    const preSelectedId = location.state?.selectedCourseId;
-    if (!preSelectedId || selectableItems.length === 0) return;
+    // Check both potential key names and sanitize
+    const rawTargetId = location.state?.courseId || location.state?.selectedCourseId;
+    if (!rawTargetId || selectableItems.length === 0) return;
+
+    const targetClean = String(rawTargetId).trim();
+    const targetUnderscored = targetClean.replace(/\s+/g, '_');
+    const targetSpaced = targetClean.replace(/_/g, ' ');
 
     const match = selectableItems.find((item) => {
       const directKey = getItemKey(item);
-      const isDirectMatch = directKey === preSelectedId;
-      const isChildMatch = Array.isArray(item.childCourseIds) && item.childCourseIds.includes(preSelectedId);
-      return isDirectMatch || isChildMatch;
+      const isDirectMatch =
+        directKey === targetClean ||
+        directKey === targetUnderscored ||
+        directKey === targetSpaced;
+
+      const isCategoryMatch =
+        item.category &&
+        (item.category === location.state?.category || item.category === targetClean);
+
+      const isChildMatch =
+        Array.isArray(item.childCourseIds) &&
+        (item.childCourseIds.includes(targetClean) ||
+          item.childCourseIds.includes(targetUnderscored) ||
+          item.childCourseIds.includes(targetSpaced));
+
+      return isDirectMatch || isCategoryMatch || isChildMatch;
     });
 
-    const targetKey = getItemKey(match);
-    if (targetKey) {
+    if (match) {
+      const targetKey = getItemKey(match);
       setSelectedCourseIds((prev) => {
         if (!prev.includes(targetKey)) {
           return [...prev, targetKey];
@@ -146,6 +165,7 @@ const Payment = () => {
   };
 
   const handleCopy = (text, fieldName) => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
     setCopiedField(fieldName);
     setTimeout(() => setCopiedField(null), 2000);
@@ -166,12 +186,13 @@ const Payment = () => {
     );
   };
 
+  // 4. Form Submission with Server-Side Match
   const onSubmit = async (formData) => {
     if (!user?.email) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Your session has expired. Please log in again.'
+        title: 'Session Expired',
+        text: 'Your session has expired. Please sign in again.'
       });
       return;
     }
@@ -180,11 +201,12 @@ const Payment = () => {
       Swal.fire({
         icon: 'warning',
         title: lang === 'bn' ? 'কোর্স নির্বাচন করুন' : 'Course Selection Required',
-        text: instructionData?.content?.[lang]?.form?.courseSelectRequired || 'Please select at least one course to proceed.'
+        text: instructionData?.content?.[lang]?.form?.courseSelectRequired || 'Please select at least one course or bundle track to proceed.'
       });
       return;
     }
 
+    // Expand bundle items to all individual child IDs for server validation
     const expandedCourseIds = [];
     selectedCourseIds.forEach((id) => {
       const match = selectableItems.find((item) => getItemKey(item) === id);
@@ -216,12 +238,13 @@ const Payment = () => {
 
       await Swal.fire({
         icon: 'success',
-        title: activeAlerts?.successTitle || 'Submission Successful',
-        text: activeAlerts?.successText || 'Your payment details have been submitted for verification.',
-        confirmButtonColor: '#008000'
+        title: activeAlerts?.successTitle || 'Payment Details Submitted',
+        text: activeAlerts?.successText || 'Your transaction reference has been recorded. Our administrators will verify and activate your courses shortly.',
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'Go to Home'
       });
 
-      if (checkAuthStatus) {
+      if (typeof checkAuthStatus === 'function') {
         await checkAuthStatus();
       }
 
@@ -234,13 +257,16 @@ const Payment = () => {
       });
       setSelectedCourseIds([]);
 
+      // Automatically redirect home after successful verification submission
+      navigate('/', { replace: true });
+
     } catch (err) {
       console.error('Submission error:', err);
       const activeAlerts = instructionData?.content?.[lang]?.alerts;
       Swal.fire({
         icon: 'error',
-        title: activeAlerts?.errorTitle || 'Submission Error',
-        text: err.response?.data?.message || 'Failed to submit payment details.'
+        title: activeAlerts?.errorTitle || 'Submission Failed',
+        text: err.response?.data?.message || 'Failed to submit payment verification details. Please verify your TrxID.'
       });
     } finally {
       setIsSubmitting(false);
@@ -250,8 +276,8 @@ const Payment = () => {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950">
-        <div className="h-11 w-11 rounded-full border-4 border-slate-300 border-t-slate-900 dark:border-zinc-700 dark:border-t-white animate-spin mb-3" />
-        <p className="text-sm font-bold text-slate-600 dark:text-zinc-300">Loading payment details...</p>
+        <div className="h-10 w-10 rounded-full border-4 border-slate-300 border-t-indigo-600 dark:border-zinc-700 dark:border-t-indigo-400 animate-spin mb-3" />
+        <p className="text-sm font-bold text-slate-600 dark:text-zinc-300">Preparing payment checkout...</p>
       </div>
     );
   }
@@ -264,35 +290,43 @@ const Payment = () => {
     );
   }
 
-  const t = instructionData.content[lang] || instructionData.content['en'];
+  const t = instructionData.content?.[lang] || instructionData.content?.['en'] || {};
   const currencySymbol = instructionData.pricing?.currencySymbol || '৳';
   const currencyCode = instructionData.pricing?.currency || 'BDT';
   const catalog = instructionData.courseCatalog || {};
 
+  // All valid academic tracks including study abroad
+  const academicTracks = [
+    { key: 'ssc', label: 'SSC Academic Track' },
+    { key: 'hsc', label: 'HSC Higher Secondary Track' },
+    { key: 'cse', label: 'CSE Engineering Track' },
+    { key: 'studyAbroad', label: 'Study Abroad Pathway' }
+  ];
+
   return (
-    <section className="min-h-screen bg-slate-50 dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8">
+    <section className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
 
-        {/* Top Header Bar */}
+        {/* Top Header & Language Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-8 mb-8 border-b border-slate-200 dark:border-zinc-800">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 mb-3 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              {t.badge || 'Payment Gateway'}
+              {t.badge || 'Verified Checkout'}
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-700 dark:text-white tracking-tight leading-tight">
-              {t.title}
+            <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+              {t.title || 'Course Enrollment Checkout'}
             </h1>
-            <p className="mt-2 text-base font-medium text-slate-600 dark:text-zinc-400 max-w-xl">
-              {t.subtitle}
+            <p className="mt-1.5 text-sm sm:text-base font-medium text-slate-600 dark:text-zinc-400 max-w-xl">
+              {t.subtitle || 'Select your courses or bundle packages and record your mobile transaction details.'}
             </p>
           </div>
 
-          <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1.5 rounded-2xl border border-slate-200 dark:border-zinc-700 self-start sm:self-center shadow-xs">
+          <div className="flex items-center bg-slate-200/80 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-300/80 dark:border-zinc-700 self-start sm:self-center shadow-xs">
             <button
               type="button"
               onClick={() => setLang('en')}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${lang === 'en'
+              className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${lang === 'en'
                 ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-zinc-700'
                 : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
@@ -302,7 +336,7 @@ const Payment = () => {
             <button
               type="button"
               onClick={() => setLang('bn')}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${lang === 'bn'
+              className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${lang === 'bn'
                 ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-zinc-700'
                 : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
@@ -312,15 +346,15 @@ const Payment = () => {
           </div>
         </div>
 
-        {/* 2-Column Layout */}
+        {/* 2-Column Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-          {/* Left Side: Course Selection Tracks */}
+          {/* Left Column: Course Selection Tracks */}
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 p-6 sm:p-8 shadow-sm">
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100 dark:border-zinc-800">
-                <h2 className="text-base font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                  {t.form?.courseSelectLabel || '1. Select Course Tracks'}
+                <h2 className="text-sm sm:text-base font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                  {t.form?.courseSelectLabel || '1. Choose Desired Modules'}
                 </h2>
                 <span className="text-xs font-black px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900">
                   {selectedCourseIds.length} {lang === 'bn' ? 'টি নির্বাচিত' : 'Selected'}
@@ -329,10 +363,14 @@ const Payment = () => {
 
               {/* Vocab Bundles */}
               {catalog.vocabBundles?.length > 0 && (
-                <div className="mb-7 space-y-3">
-                  <span className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400">
-                    English Vocabulary Tracks
-                  </span>
+                <div className="mb-8 space-y-3.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400">
+                      Vocabulary Bundles (All-in-One Track)
+                    </span>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {catalog.vocabBundles.map((bundle, index) => {
                       const bundleKey = getItemKey(bundle);
@@ -355,15 +393,15 @@ const Payment = () => {
                               className="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-zinc-700 pointer-events-none"
                             />
                             <div>
-                              <span className="text-sm font-extrabold text-slate-900 dark:text-white block">
+                              <span className="text-sm font-extrabold text-slate-900 dark:text-white block leading-snug">
                                 {bundle.title}
                               </span>
                               <span className="text-xs font-medium text-slate-500 dark:text-zinc-400">
-                                Full Category Access ({bundle.courseCount || 0} Courses)
+                                Unlocks all {bundle.courseCount || 0} modules
                               </span>
                             </div>
                           </div>
-                          <span className="font-mono text-sm font-black text-emerald-700 dark:text-emerald-400">
+                          <span className="font-mono text-sm font-black text-emerald-600 dark:text-emerald-400 shrink-0">
                             {currencySymbol}{bundle.price}
                           </span>
                         </div>
@@ -373,16 +411,20 @@ const Payment = () => {
                 </div>
               )}
 
-              {/* Academic & Tech Course Grids */}
-              {['ssc', 'hsc', 'cse'].map((trackKey) => {
-                const subjects = catalog.academicSubjects?.[trackKey] || [];
+              {/* Academic & Tech Subject Checklist */}
+              {academicTracks.map(({ key, label }) => {
+                const subjects = catalog.academicSubjects?.[key] || [];
                 if (subjects.length === 0) return null;
 
                 return (
-                  <div key={trackKey} className="mb-7 last:mb-0 space-y-3">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400">
-                      {trackKey.toUpperCase()} Courses
-                    </span>
+                  <div key={key} className="mb-7 last:mb-0 space-y-3.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-slate-400" />
+                      <span className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400">
+                        {label}
+                      </span>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       {subjects.map((course) => {
                         const courseKey = getItemKey(course);
@@ -404,11 +446,11 @@ const Payment = () => {
                                 onChange={() => { }}
                                 className="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-zinc-700 pointer-events-none"
                               />
-                              <span className="text-sm font-bold text-slate-900 dark:text-white">
+                              <span className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
                                 {course.title || course.courseName}
                               </span>
                             </div>
-                            <span className="font-mono text-sm font-black text-slate-800 dark:text-zinc-200">
+                            <span className="font-mono text-sm font-black text-slate-800 dark:text-zinc-200 shrink-0">
                               {currencySymbol}{course.price}
                             </span>
                           </div>
@@ -421,32 +463,33 @@ const Payment = () => {
             </div>
           </div>
 
-          {/* Right Side: Account Box, Instructions & Payment Form */}
+          {/* Right Column: Account Card, Instructions & Verification Form */}
           <div className="lg:col-span-5 lg:sticky lg:top-8 space-y-5">
 
-            <div className="bg-[#494949] dark:bg-zinc-600 text-[#CFCFCF] p-6 sm:p-7 rounded-3xl shadow-xl border border-slate-800 dark:border-zinc-800 space-y-4">
+            {/* Merchant Account Card */}
+            <div className="relative overflow-hidden bg-slate-900 dark:bg-zinc-900 text-white p-6 sm:p-7 rounded-3xl shadow-xl border border-slate-800 dark:border-zinc-800 space-y-4">
               <div className="flex justify-between items-center pb-4 border-b border-slate-800 dark:border-zinc-800">
                 <div>
-                  <span className="text-xs font-black text-white uppercase tracking-widest block mb-1">
-                    {t.recipientLabel} ({activeGateway?.name || 'Gateway'})
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1">
+                    {t.recipientLabel || 'Receiver Account'} ({activeGateway?.name || 'Gateway'})
                   </span>
-                  <span className="font-mono font-black text-xl text-white tracking-wider">
+                  <span className="font-mono font-black text-xl sm:text-2xl text-white tracking-wider">
                     {activeGateway?.number || 'N/A'}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopy(activeGateway?.number || '', 'number')}
-                  className="px-3.5 py-2 text-xs font-black rounded-xl bg-[#303030] hover:bg-indigo-500 text-[#CFCFCF] transition cursor-pointer shadow-xs"
+                  className="px-3.5 py-2 text-xs font-black rounded-xl bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white transition cursor-pointer shadow-xs border border-slate-700"
                 >
-                  {copiedField === 'number' ? t.copiedBtn : t.copyBtn}
+                  {copiedField === 'number' ? t.copiedBtn || 'Copied!' : t.copyBtn || 'Copy'}
                 </button>
               </div>
 
               <div className="flex justify-between items-end">
                 <div>
                   <span className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1">
-                    {t.amountLabel}
+                    {t.amountLabel || 'Payable Amount'}
                   </span>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono tracking-tight">
@@ -459,18 +502,19 @@ const Payment = () => {
                   type="button"
                   disabled={selectedTotal === 0}
                   onClick={() => handleCopy(selectedTotal.toString(), 'amount')}
-                  className="px-3.5 py-2 text-xs font-black rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="px-3.5 py-2 text-xs font-black rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700"
                 >
-                  {copiedField === 'amount' ? t.copiedBtn : t.copyBtn}
+                  {copiedField === 'amount' ? t.copiedBtn || 'Copied!' : t.copyBtn || 'Copy'}
                 </button>
               </div>
             </div>
 
+            {/* Step-by-Step Instructions */}
             <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 p-6 shadow-sm space-y-3.5">
               <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100 dark:border-zinc-800">
                 <span className="flex h-2.5 w-2.5 rounded-full bg-indigo-500 animate-pulse" />
                 <h2 className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                  {t.instructionsTitle || 'Payment Instructions'}
+                  {t.instructionsTitle || 'Payment Guide'}
                 </h2>
               </div>
 
@@ -482,33 +526,36 @@ const Payment = () => {
                 ))}
               </ol>
 
-              <p className="text-xs font-semibold text-slate-600 dark:text-zinc-400 pt-3 border-t border-slate-100 dark:border-zinc-800 leading-normal">
-                {t.verificationNote}{' '}
-                <a
-                  href={`tel:${instructionData.support?.hotline}`}
-                  className="font-black text-indigo-600 dark:text-indigo-400 underline underline-offset-2 hover:text-indigo-700"
-                >
-                  {instructionData.support?.hotline}
-                </a>.
-              </p>
+              {instructionData.support?.hotline && (
+                <p className="text-xs font-semibold text-slate-600 dark:text-zinc-400 pt-3 border-t border-slate-100 dark:border-zinc-800 leading-normal">
+                  {t.verificationNote || 'For instant activation support:'}{' '}
+                  <a
+                    href={`tel:${instructionData.support?.hotline}`}
+                    className="font-black text-indigo-600 dark:text-indigo-400 underline underline-offset-2 hover:text-indigo-700"
+                  >
+                    {instructionData.support?.hotline}
+                  </a>.
+                </p>
+              )}
             </div>
 
+            {/* Verification Form */}
             <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 p-6 sm:p-7 shadow-sm">
-              <h2 className="text-base font-black uppercase tracking-wider text-slate-900 dark:text-white mb-6 pb-3 border-b border-slate-100 dark:border-zinc-800">
+              <h2 className="text-sm sm:text-base font-black uppercase tracking-wider text-slate-900 dark:text-white mb-6 pb-3 border-b border-slate-100 dark:border-zinc-800">
                 2. Transaction Details
               </h2>
 
               <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
                 <div>
                   <label className="block text-xs font-black uppercase tracking-wider text-slate-700 dark:text-zinc-300 mb-2">
-                    {t.form?.methodLabel} <span className="text-rose-500">*</span>
+                    {t.form?.methodLabel || 'Payment Gateway'} <span className="text-rose-500">*</span>
                   </label>
                   <select
-                    {...register('paymentMethod', { required: t.form?.methodRequired })}
+                    {...register('paymentMethod', { required: t.form?.methodRequired || 'Method required' })}
                     className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-600 transition cursor-pointer"
                   >
                     {instructionData.gateways?.map((gw) => (
-                      <option key={gw.id} value={gw.name}>
+                      <option key={gw.id || gw.name} value={gw.name}>
                         {gw.name} ({gw.actionType?.[lang] || 'Send Money'})
                       </option>
                     ))}
@@ -520,16 +567,16 @@ const Payment = () => {
 
                 <div>
                   <label className="block text-xs font-black uppercase tracking-wider text-slate-700 dark:text-zinc-300 mb-2">
-                    {t.form?.senderPhoneLabel} <span className="text-rose-500">*</span>
+                    {t.form?.senderPhoneLabel || 'Sender Mobile Number'} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="tel"
                     placeholder={t.form?.senderPhonePlaceholder || '01XXXXXXXXX'}
                     {...register('senderPhone', {
-                      required: t.form?.senderPhoneRequired,
+                      required: t.form?.senderPhoneRequired || 'Phone number required',
                       pattern: {
                         value: /^01[3-9]\d{8}$/,
-                        message: t.form?.senderPhoneInvalid
+                        message: t.form?.senderPhoneInvalid || 'Enter valid 11-digit Bangladeshi number'
                       }
                     })}
                     className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 transition ${errors.senderPhone
@@ -544,16 +591,16 @@ const Payment = () => {
 
                 <div>
                   <label className="block text-xs font-black uppercase tracking-wider text-slate-700 dark:text-zinc-300 mb-2">
-                    {t.form?.trxIdLabel} <span className="text-rose-500">*</span>
+                    {t.form?.trxIdLabel || 'Transaction ID'} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     placeholder={t.form?.trxIdPlaceholder || 'e.g. BL90XQ82'}
                     {...register('transactionId', {
-                      required: t.form?.trxIdRequired,
+                      required: t.form?.trxIdRequired || 'Transaction ID required',
                       minLength: {
                         value: 8,
-                        message: t.form?.trxIdMinLength
+                        message: t.form?.trxIdMinLength || 'Minimum 8 alphanumeric characters'
                       }
                     })}
                     className={`w-full px-4 py-3 rounded-xl border font-mono uppercase bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-sm font-black tracking-wider focus:outline-none focus:ring-2 transition ${errors.transactionId
@@ -572,7 +619,7 @@ const Payment = () => {
                   </label>
                   <input
                     type="text"
-                    placeholder="ENTER PROMO CODE"
+                    placeholder="PROMO CODE"
                     {...register('promoCode')}
                     className="w-full px-4 py-3 rounded-xl border font-mono uppercase font-bold border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   />
@@ -580,8 +627,7 @@ const Payment = () => {
 
                 <div>
                   <label className="block text-xs font-black uppercase tracking-wider text-slate-700 dark:text-zinc-300 mb-2">
-                    {t.form?.emailLabel}{' '}
-                    <span className="text-slate-400 font-semibold text-xs lowercase">(linked account)</span>
+                    {t.form?.emailLabel || 'Enrolled Account Email'}
                   </label>
                   <input
                     type="email"
@@ -593,8 +639,8 @@ const Payment = () => {
 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full mt-3 py-3.5 px-5 rounded-xl text-sm font-black uppercase tracking-wider bg-slate-950 text-white dark:bg-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-zinc-100 transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                  disabled={isSubmitting || selectedTotal === 0}
+                  className="w-full mt-3 py-3.5 px-5 rounded-xl text-sm font-black uppercase tracking-wider bg-slate-950 text-white dark:bg-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-zinc-100 transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
@@ -602,7 +648,7 @@ const Payment = () => {
                       <span>{t.form?.submittingBtn || 'Submitting...'}</span>
                     </>
                   ) : (
-                    <span>{t.form?.submitBtn || 'Submit Payment'}</span>
+                    <span>{t.form?.submitBtn || `Submit Payment (${currencySymbol}${selectedTotal})`}</span>
                   )}
                 </button>
               </form>

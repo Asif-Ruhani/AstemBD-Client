@@ -5,6 +5,7 @@ import useAuth from './useAuth';
 
 const axiosSecure = axios.create({
   baseURL: 'https://astembd-server.onrender.com',
+  // baseURL: 'http://localhost:5000',
   withCredentials: true, // Sends HttpOnly session cookie
   headers: {
     'X-Requested-With': 'XMLHttpRequest', // Anti-CSRF custom header

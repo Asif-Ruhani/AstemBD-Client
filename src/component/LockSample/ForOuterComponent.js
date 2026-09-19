@@ -5,7 +5,7 @@
 
 
 
-// this component is same as everydayWordS.jsx file. that show the all section grid.
+// this component is same as DynamicCourseSections.jsx file. that show the all section grid.
 // if this component is not in any bundle, then "handleBundleAccess" is not needed.
 // if this component is a single component, then only handleAccessBundle is enough to find courseId
 
