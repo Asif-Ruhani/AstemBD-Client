@@ -1,52 +1,54 @@
+
+
 // import React, { useState, useEffect } from 'react';
 
-// const dropdownData = [
+// export const dropdownData = [
 //   {
-//     id: 0,
+//     id: 1,
 //     title: 'Courses',
 //     getApi: '/all-courses',
 //     editApi: '/all-courses-edit'
 //   },
 //   {
-//     id: 1,
+//     id: 2,
 //     title: 'English Vocabulary',
 //     children: [
 //       {
-//         id: '1-I',
+//         id: '2-I',
 //         title: 'Basic English vocabulary',
 //         children: [
 //           {
-//             id: '1-I-a',
+//             id: '2-I-a',
 //             title: 'Everyday Conversational English',
 //             children: [
 //               {
-//                 id: '1-1-1',
+//                 id: '2-1-1',
 //                 title: 'Regular Vocabulary',
 //                 getApi: '/sections',
-//                 editApi: '/english-vocab/everyday-Word/section-edit',
+//                 editApi: '/section-detail',
 //               },
 //               {
-//                 id: '1-1-2',
+//                 id: '2-1-2',
 //                 title: 'Extra Vocabulary',
-//                 getApi: '/extra-vocab/sections',
-//                 editApi: '/english-vocab/everyday-Word/extra-section-edit',
+//                 getApi: '/extra-vocab-sections',
+//                 editApi: '/extra-section-detail',
 //               },
 //             ],
 //           },
 //           {
-//             id: '1-I-b',
+//             id: '2-I-b',
 //             title: 'Daily Conversational Grammar',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
 //           },
 //           {
-//             id: '1-I-c',
+//             id: '2-I-c',
 //             title: 'Spoken English Mastery',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
 //           },
 //           {
-//             id: '1-I-d',
+//             id: '2-I-d',
 //             title: 'Phonetics & Pronunciation',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
@@ -54,35 +56,35 @@
 //         ],
 //       },
 //       {
-//         id: '1-II',
+//         id: '2-II',
 //         title: 'Advanced English vocabulary',
 //         children: [
 //           {
-//             id: '1-II-a',
+//             id: '2-II-a',
 //             title: 'Essential Academic Vocabulary',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
 //           },
 //           {
-//             id: '1-II-b',
+//             id: '2-II-b',
 //             title: 'Hard High-Yield Vocabulary',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
 //           },
 //           {
-//             id: '1-II-c',
+//             id: '2-II-c',
 //             title: 'Advanced Elite Vocabulary',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
 //           },
 //           {
-//             id: '1-II-d',
+//             id: '2-II-d',
 //             title: 'Admission & Job Exam Vocabulary',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
 //           },
 //           {
-//             id: '1-II-e',
+//             id: '2-II-e',
 //             title: 'Sentence Anatomy & Syntax',
 //             getApi: '/all-courses',
 //             editApi: '/all-courses-edit'
@@ -92,29 +94,29 @@
 //     ],
 //   },
 //   {
-//     id: 2,
+//     id: 3,
 //     title: 'Study Abroad',
 //     children: [
 //       {
-//         id: '2-I',
+//         id: '3-I',
 //         title: 'Scholarship and Admission Info',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '2-II',
+//         id: '3-II',
 //         title: 'IELTS Resources',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '2-III',
+//         id: '3-III',
 //         title: 'GRE Info',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '2-IV',
+//         id: '3-IV',
 //         title: 'Student Counselling',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
@@ -122,72 +124,54 @@
 //     ],
 //   },
 //   {
-//     id: 3,
+//     id: 4,
 //     title: 'Computer Science & Engineering (CSE)',
 //     children: [
 //       {
-//         id: '3-I', title: 'Data Structures',
+//         id: '4-I',
+//         title: 'Data Structures',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '3-II', title: 'Design & Analysis of Algorithms',
+//         id: '4-II',
+//         title: 'Design & Analysis of Algorithms',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '3-III', title: 'Operating Systems',
+//         id: '4-III',
+//         title: 'Operating Systems',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '3-IV', title: 'Computer Architecture & Organization',
+//         id: '4-IV',
+//         title: 'Computer Architecture & Organization',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '3-V', title: 'Computer Networks',
+//         id: '4-V',
+//         title: 'Computer Networks',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '3-VI', title: 'Database Management Systems',
+//         id: '4-VI',
+//         title: 'Database Management Systems',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '3-VII', title: 'Graph Theory & Combinatorics',
+//         id: '4-VII',
+//         title: 'Graph Theory & Combinatorics',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '3-VIII', title: 'Theory of Computation & Automata',
-//         getApi: '/all-courses',
-//         editApi: '/all-courses-edit'
-//       },
-//     ],
-//   },
-//   {
-//     id: 4,
-//     title: 'HSC',
-//     children: [
-//       {
-//         id: '4-I', title: 'Physics',
-//         getApi: '/all-courses',
-//         editApi: '/all-courses-edit'
-//       },
-//       {
-//         id: '4-II', title: 'Chemistry',
-//         getApi: '/all-courses',
-//         editApi: '/all-courses-edit'
-//       },
-//       {
-//         id: '4-III', title: 'Biology',
-//         getApi: '/all-courses',
-//         editApi: '/all-courses-edit'
-//       },
-//       {
-//         id: '4-IV', title: 'Higher mathematics',
+//         id: '4-VIII',
+//         title: 'Theory of Computation & Automata',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
@@ -195,30 +179,65 @@
 //   },
 //   {
 //     id: 5,
+//     title: 'HSC',
+//     children: [
+//       {
+//         id: '5-I',
+//         title: 'Physics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '5-II',
+//         title: 'Chemistry',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '5-III',
+//         title: 'Biology',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//       {
+//         id: '5-IV',
+//         title: 'Higher mathematics',
+//         getApi: '/all-courses',
+//         editApi: '/all-courses-edit'
+//       },
+//     ],
+//   },
+//   {
+//     id: 6,
 //     title: 'SSC',
 //     children: [
 //       {
-//         id: '5-I', title: 'Physics',
+//         id: '6-I',
+//         title: 'Physics',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '5-II', title: 'Chemistry',
+//         id: '6-II',
+//         title: 'Chemistry',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '5-III', title: 'Biology',
+//         id: '6-III',
+//         title: 'Biology',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '5-IV', title: 'General mathematics',
+//         id: '6-IV',
+//         title: 'General mathematics',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
 //       {
-//         id: '5-V', title: 'Higher mathematics',
+//         id: '6-V',
+//         title: 'Higher mathematics',
 //         getApi: '/all-courses',
 //         editApi: '/all-courses-edit'
 //       },
@@ -226,60 +245,69 @@
 //   },
 // ];
 
-// // Helper to check if this item or any of its nested children contains the activeApi
-// function containsActiveChild(item, targetApi) {
-//   if (!targetApi) return false;
-//   if (item.getApi === targetApi) return true;
+// // Add this helper function below dropdownData:
+// export function findCategoryById(tree, targetId) {
+//   if (!targetId) return null;
+//   for (const item of tree) {
+//     if (String(item.id) === String(targetId)) return item;
+//     if (item.children && item.children.length > 0) {
+//       const found = findCategoryById(item.children, targetId);
+//       if (found) return found;
+//     }
+//   }
+//   return null;
+// }
+
+// // Helper to check if this item or any of its nested children matches active identity
+// function containsActiveChild(item, activeId, activeApi) {
+//   if (!activeId && !activeApi) return false;
+//   if ((item.id && item.id === activeId) || (item.getApi && item.getApi === activeApi)) return true;
 //   if (item.children && item.children.length > 0) {
-//     return item.children.some((child) => containsActiveChild(child, targetApi));
+//     return item.children.some((child) => containsActiveChild(child, activeId, activeApi));
 //   }
 //   return false;
 // }
 
-// function MenuItem({ item, level = 0, onSelect, activeApi }) {
+// function MenuItem({ item, level = 0, onSelect, activeCategory }) {
 //   const hasChildren = Boolean(item.children && item.children.length > 0);
-//   // Only leaf nodes can be actively selected/highlighted
-//   const isSelected = Boolean(!hasChildren && item.getApi && item.getApi === activeApi);
+
+//   // Dynamic leaf match check
+//   const isSelected = Boolean(
+//     !hasChildren &&
+//     ((activeCategory?.id && item.id === activeCategory.id) ||
+//       (activeCategory?.getApi && item.getApi === activeCategory.getApi && item.title === activeCategory.title))
+//   );
+
 //   const isClickable = Boolean(item.getApi || hasChildren);
 
-//   // Auto-expand ancestors if an active child is inside
-//   const [isOpen, setIsOpen] = useState(() => containsActiveChild(item, activeApi));
+//   const [isOpen, setIsOpen] = useState(() =>
+//     containsActiveChild(item, activeCategory?.id, activeCategory?.getApi)
+//   );
 //   const [isHovered, setIsHovered] = useState(false);
 
 //   useEffect(() => {
-//     if (containsActiveChild(item, activeApi)) {
+//     if (containsActiveChild(item, activeCategory?.id, activeCategory?.getApi)) {
 //       setIsOpen(true);
 //     }
-//   }, [activeApi, item]);
-
-//   const handleMouseEnter = () => {
-//     setIsHovered(true);
-//   };
-
-//   const handleMouseLeave = () => {
-//     setIsHovered(false);
-//   };
+//   }, [activeCategory, item]);
 
 //   const handleClick = () => {
 //     if (hasChildren) {
-//       // Parents ONLY toggle display of children; no data fetch triggered
 //       setIsOpen((prev) => !prev);
 //     } else if (item.getApi && typeof onSelect === 'function') {
-//       // Leaf nodes trigger data retrieval
 //       onSelect(item);
 //     }
 //   };
 
-//   // Background and text colors with light-gray hover
 //   let bgColor = 'transparent';
-//   let textColor = '#475569'; // Slate 600
+//   let textColor = '#475569';
 
 //   if (isSelected) {
-//     bgColor = '#e2e8f0';      // Medium slate-gray for selected item
-//     textColor = '#0f172a';    // Dark text
+//     bgColor = '#e2e8f0';
+//     textColor = '#0f172a';
 //   } else if (isHovered) {
-//     bgColor = '#f1f5f9';      // Clean light gray hover
-//     textColor = '#0f172a';    // Slate 900
+//     bgColor = '#f1f5f9';
+//     textColor = '#0f172a';
 //   }
 
 //   if (level === 0 && !isSelected) {
@@ -288,8 +316,8 @@
 
 //   return (
 //     <li
-//       onMouseEnter={handleMouseEnter}
-//       onMouseLeave={handleMouseLeave}
+//       onMouseEnter={() => setIsHovered(true)}
+//       onMouseLeave={() => setIsHovered(false)}
 //       style={{ listStyle: 'none', margin: '2px 0' }}
 //     >
 //       <button
@@ -325,7 +353,6 @@
 //             whiteSpace: 'nowrap',
 //           }}
 //         >
-//           {/* Dot indicator shown only for selectable leaf items */}
 //           {!hasChildren && item.getApi && (
 //             <span
 //               style={{
@@ -373,7 +400,6 @@
 //         )}
 //       </button>
 
-//       {/* Nested child list */}
 //       {hasChildren && isOpen && (
 //         <ul
 //           style={{
@@ -388,7 +414,7 @@
 //               item={child}
 //               level={level + 1}
 //               onSelect={onSelect}
-//               activeApi={activeApi}
+//               activeCategory={activeCategory}
 //             />
 //           ))}
 //         </ul>
@@ -397,8 +423,9 @@
 //   );
 // }
 
-// export default function DropDownItems({ onCategorySelect, onSelect, activeApi }) {
+// export default function DropDownItems({ onCategorySelect, onSelect, activeCategory, activeApi }) {
 //   const handleSelectCallback = onCategorySelect || onSelect;
+//   const currentCategory = activeCategory || (activeApi ? { getApi: activeApi } : null);
 
 //   return (
 //     <nav
@@ -449,7 +476,7 @@
 //             key={item.id}
 //             item={item}
 //             onSelect={handleSelectCallback}
-//             activeApi={activeApi}
+//             activeCategory={currentCategory}
 //           />
 //         ))}
 //       </ul>
@@ -457,17 +484,20 @@
 //   );
 // }
 
+
 import React, { useState, useEffect } from 'react';
 
+// Navigation catalog tree containing unified route definitions, identifiers & filter parameters
 export const dropdownData = [
   {
-    id: 1,
-    title: 'Courses',
+    id: '1',
+    title: 'Courses (All)',
     getApi: '/all-courses',
-    editApi: '/all-courses-edit'
+    editApi: '/all-courses-edit',
+    isCourseCollection: true,
   },
   {
-    id: 2,
+    id: '2',
     title: 'English Vocabulary',
     children: [
       {
@@ -481,14 +511,16 @@ export const dropdownData = [
               {
                 id: '2-1-1',
                 title: 'Regular Vocabulary',
-                getApi: '/sections',
-                editApi: '/section-detail',
+                getApi: '/english-vocab-sections',
+                editApi: '/english-vocab-details',
+                courseId: 'everyday-conversational-english',
               },
               {
                 id: '2-1-2',
                 title: 'Extra Vocabulary',
-                getApi: '/extra-vocab-sections',
-                editApi: '/extra-section-detail',
+                getApi: '/english-vocab-sections',
+                editApi: '/english-vocab-details',
+                courseId: 'everyday-conversational-english-extra',
               },
             ],
           },
@@ -496,19 +528,25 @@ export const dropdownData = [
             id: '2-I-b',
             title: 'Daily Conversational Grammar',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'spoken-grammar' },
+            isCourseCollection: true,
           },
           {
             id: '2-I-c',
             title: 'Spoken English Mastery',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'spoken-english' },
+            isCourseCollection: true,
           },
           {
             id: '2-I-d',
             title: 'Phonetics & Pronunciation',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'phonetics' },
+            isCourseCollection: true,
           },
         ],
       },
@@ -520,189 +558,241 @@ export const dropdownData = [
             id: '2-II-a',
             title: 'Essential Academic Vocabulary',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'academic-vocab' },
+            isCourseCollection: true,
           },
           {
             id: '2-II-b',
             title: 'Hard High-Yield Vocabulary',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'high-yield-vocab' },
+            isCourseCollection: true,
           },
           {
             id: '2-II-c',
             title: 'Advanced Elite Vocabulary',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'elite-vocab' },
+            isCourseCollection: true,
           },
           {
             id: '2-II-d',
             title: 'Admission & Job Exam Vocabulary',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'job-vocab' },
+            isCourseCollection: true,
           },
           {
             id: '2-II-e',
             title: 'Sentence Anatomy & Syntax',
             getApi: '/all-courses',
-            editApi: '/all-courses-edit'
+            editApi: '/all-courses-edit',
+            filterQuery: { category: 'sentence-syntax' },
+            isCourseCollection: true,
           },
         ],
       },
     ],
   },
   {
-    id: 3,
+    id: '3',
     title: 'Study Abroad',
     children: [
       {
         id: '3-I',
         title: 'Scholarship and Admission Info',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { category: 'overall-courses', track: 'GLOBAL PATHWAY' },
+        isCourseCollection: true,
       },
       {
         id: '3-II',
         title: 'IELTS Resources',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { category: 'ielts-prep' },
+        isCourseCollection: true,
       },
       {
         id: '3-III',
         title: 'GRE Info',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { category: 'gre-prep' },
+        isCourseCollection: true,
       },
       {
         id: '3-IV',
         title: 'Student Counselling',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { category: 'counselling' },
+        isCourseCollection: true,
       },
     ],
   },
   {
-    id: 4,
+    id: '4',
     title: 'Computer Science & Engineering (CSE)',
     children: [
       {
         id: '4-I',
         title: 'Data Structures',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'data-structures' },
+        isCourseCollection: true,
       },
       {
         id: '4-II',
         title: 'Design & Analysis of Algorithms',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'algorithms' },
+        isCourseCollection: true,
       },
       {
         id: '4-III',
         title: 'Operating Systems',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'operating-systems' },
+        isCourseCollection: true,
       },
       {
         id: '4-IV',
         title: 'Computer Architecture & Organization',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'architecture' },
+        isCourseCollection: true,
       },
       {
         id: '4-V',
         title: 'Computer Networks',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'networks' },
+        isCourseCollection: true,
       },
       {
         id: '4-VI',
         title: 'Database Management Systems',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'dbms' },
+        isCourseCollection: true,
       },
       {
         id: '4-VII',
         title: 'Graph Theory & Combinatorics',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'graph-theory' },
+        isCourseCollection: true,
       },
       {
         id: '4-VIII',
         title: 'Theory of Computation & Automata',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'CSE', subject: 'automata' },
+        isCourseCollection: true,
       },
     ],
   },
   {
-    id: 5,
+    id: '5',
     title: 'HSC',
     children: [
       {
         id: '5-I',
         title: 'Physics',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'HSC', subject: 'physics' },
+        isCourseCollection: true,
       },
       {
         id: '5-II',
         title: 'Chemistry',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'HSC', subject: 'chemistry' },
+        isCourseCollection: true,
       },
       {
         id: '5-III',
         title: 'Biology',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'HSC', subject: 'biology' },
+        isCourseCollection: true,
       },
       {
         id: '5-IV',
         title: 'Higher mathematics',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'HSC', subject: 'higher-math' },
+        isCourseCollection: true,
       },
     ],
   },
   {
-    id: 6,
+    id: '6',
     title: 'SSC',
     children: [
       {
         id: '6-I',
         title: 'Physics',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'SSC', subject: 'physics' },
+        isCourseCollection: true,
       },
       {
         id: '6-II',
         title: 'Chemistry',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'SSC', subject: 'chemistry' },
+        isCourseCollection: true,
       },
       {
         id: '6-III',
         title: 'Biology',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'SSC', subject: 'biology' },
+        isCourseCollection: true,
       },
       {
         id: '6-IV',
         title: 'General mathematics',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'SSC', subject: 'general-math' },
+        isCourseCollection: true,
       },
       {
         id: '6-V',
         title: 'Higher mathematics',
         getApi: '/all-courses',
-        editApi: '/all-courses-edit'
+        editApi: '/all-courses-edit',
+        filterQuery: { track: 'SSC', subject: 'higher-math' },
+        isCourseCollection: true,
       },
     ],
   },
 ];
 
-// Add this helper function below dropdownData:
+// Helper to recursively locate a category item by unique ID
 export function findCategoryById(tree, targetId) {
   if (!targetId) return null;
   for (const item of tree) {
@@ -715,12 +805,13 @@ export function findCategoryById(tree, targetId) {
   return null;
 }
 
-// Helper to check if this item or any of its nested children matches active identity
-function containsActiveChild(item, activeId, activeApi) {
-  if (!activeId && !activeApi) return false;
-  if ((item.id && item.id === activeId) || (item.getApi && item.getApi === activeApi)) return true;
+// Helper to check if a menu subtree contains the current active leaf item
+function containsActiveChild(item, activeId, activeCourseId) {
+  if (!activeId && !activeCourseId) return false;
+  if (item.id && String(item.id) === String(activeId)) return true;
+  if (item.courseId && activeCourseId && item.courseId === activeCourseId) return true;
   if (item.children && item.children.length > 0) {
-    return item.children.some((child) => containsActiveChild(child, activeId, activeApi));
+    return item.children.some((child) => containsActiveChild(child, activeId, activeCourseId));
   }
   return false;
 }
@@ -728,22 +819,20 @@ function containsActiveChild(item, activeId, activeApi) {
 function MenuItem({ item, level = 0, onSelect, activeCategory }) {
   const hasChildren = Boolean(item.children && item.children.length > 0);
 
-  // Dynamic leaf match check
   const isSelected = Boolean(
     !hasChildren &&
-    ((activeCategory?.id && item.id === activeCategory.id) ||
-      (activeCategory?.getApi && item.getApi === activeCategory.getApi && item.title === activeCategory.title))
+    ((activeCategory?.id && String(item.id) === String(activeCategory.id)) ||
+      (activeCategory?.courseId && item.courseId && item.courseId === activeCategory.courseId))
   );
 
   const isClickable = Boolean(item.getApi || hasChildren);
-
   const [isOpen, setIsOpen] = useState(() =>
-    containsActiveChild(item, activeCategory?.id, activeCategory?.getApi)
+    containsActiveChild(item, activeCategory?.id, activeCategory?.courseId)
   );
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (containsActiveChild(item, activeCategory?.id, activeCategory?.getApi)) {
+    if (containsActiveChild(item, activeCategory?.id, activeCategory?.courseId)) {
       setIsOpen(true);
     }
   }, [activeCategory, item]);
@@ -880,9 +969,8 @@ function MenuItem({ item, level = 0, onSelect, activeCategory }) {
   );
 }
 
-export default function DropDownItems({ onCategorySelect, onSelect, activeCategory, activeApi }) {
+export default function DropDownItems({ onCategorySelect, onSelect, activeCategory }) {
   const handleSelectCallback = onCategorySelect || onSelect;
-  const currentCategory = activeCategory || (activeApi ? { getApi: activeApi } : null);
 
   return (
     <nav
@@ -933,7 +1021,7 @@ export default function DropDownItems({ onCategorySelect, onSelect, activeCatego
             key={item.id}
             item={item}
             onSelect={handleSelectCallback}
-            activeCategory={currentCategory}
+            activeCategory={activeCategory}
           />
         ))}
       </ul>

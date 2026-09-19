@@ -297,7 +297,7 @@ const AuthProvider = ({ children }) => {
     // Check session status strictly via HttpOnly cookie
     const checkAuthStatus = async () => {
 
-        // 🛑 Guard: Do not call the backend if there is no Firebase user
+        // Guard: Do not call the backend if there is no Firebase user
         if (!auth.currentUser && !user) {
             setAuthStatus('not-authenticated');
             setPaymentStatus(null);

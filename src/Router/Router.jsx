@@ -236,24 +236,20 @@ const router = createBrowserRouter([
                 )
             },
             {
-                path: '/section-detail/:sectionNumber',
+                // Vocabulary Section Editor (Regular & Extra Vocab - both create & edit)
+                path: '/english-vocab-details/:sectionNumber',
                 element: (
                     <AdminRoute>
-                        <SectionEditor></SectionEditor>
-                    </AdminRoute>)
+                        <SectionEditor />
+                    </AdminRoute>
+                )
             },
             {
-                path: '/extra-section-detail/:code',
-                element: (
-                    <AdminRoute>
-                        <SectionEditor></SectionEditor>
-                    </AdminRoute>)
-            },
-            {
+                // Course Editor (All Courses & Track specific courses - both create & edit)
                 path: '/all-courses-edit/:courseId',
                 element: (
                     <AdminRoute>
-                        <SectionEditor></SectionEditor>
+                        <SectionEditor />
                     </AdminRoute>
                 )
             }
