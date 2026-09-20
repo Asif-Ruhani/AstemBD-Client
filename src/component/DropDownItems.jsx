@@ -513,14 +513,16 @@ export const dropdownData = [
                 title: 'Regular Vocabulary',
                 getApi: '/english-vocab-sections',
                 editApi: '/english-vocab-details',
-                courseId: 'everyday-conversational-english',
+                courseId: 'CRS_BEV_CONV_01',
+                filterQuery: { status: 'regular' }
               },
               {
                 id: '2-1-2',
                 title: 'Extra Vocabulary',
                 getApi: '/english-vocab-sections',
                 editApi: '/english-vocab-details',
-                courseId: 'everyday-conversational-english-extra',
+                courseId: 'CRS_BEV_CONV_01',
+                filterQuery: { status: 'extra' }
               },
             ],
           },
@@ -806,12 +808,11 @@ export function findCategoryById(tree, targetId) {
 }
 
 // Helper to check if a menu subtree contains the current active leaf item
-function containsActiveChild(item, activeId, activeCourseId) {
-  if (!activeId && !activeCourseId) return false;
+function containsActiveChild(item, activeId) {
+  if (!activeId) return false;
   if (item.id && String(item.id) === String(activeId)) return true;
-  if (item.courseId && activeCourseId && item.courseId === activeCourseId) return true;
   if (item.children && item.children.length > 0) {
-    return item.children.some((child) => containsActiveChild(child, activeId, activeCourseId));
+    return item.children.some((child) => containsActiveChild(child, activeId));
   }
   return false;
 }
@@ -819,20 +820,21 @@ function containsActiveChild(item, activeId, activeCourseId) {
 function MenuItem({ item, level = 0, onSelect, activeCategory }) {
   const hasChildren = Boolean(item.children && item.children.length > 0);
 
+  // Exact unique ID match: ensures Regular ('2-1-1') and Extra ('2-1-2') never conflict
   const isSelected = Boolean(
     !hasChildren &&
-    ((activeCategory?.id && String(item.id) === String(activeCategory.id)) ||
-      (activeCategory?.courseId && item.courseId && item.courseId === activeCategory.courseId))
+    activeCategory?.id &&
+    String(item.id) === String(activeCategory.id)
   );
 
   const isClickable = Boolean(item.getApi || hasChildren);
   const [isOpen, setIsOpen] = useState(() =>
-    containsActiveChild(item, activeCategory?.id, activeCategory?.courseId)
+    containsActiveChild(item, activeCategory?.id)
   );
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (containsActiveChild(item, activeCategory?.id, activeCategory?.courseId)) {
+    if (containsActiveChild(item, activeCategory?.id)) {
       setIsOpen(true);
     }
   }, [activeCategory, item]);
