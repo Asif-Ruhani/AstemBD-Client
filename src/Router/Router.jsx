@@ -19,6 +19,7 @@ import ScreenshotAuditLogs from "../component/ScreenshotAuditLogs";
 import DocumentPage from "../component/DocumentPage";
 import MyCourses from "../component/MyCourses";
 import SectionEditor from "../component/SectionEditor";
+import ContentShield from "../component/ContentShield";
 
 const router = createBrowserRouter([
     {
@@ -40,7 +41,9 @@ const router = createBrowserRouter([
             },
             {
                 path: '/payment',
-                element: <Payment />
+                element: <PrivateRoutes>
+                    <Payment></Payment>
+                </PrivateRoutes>
             },
             {
                 path: '/coming-soon',
@@ -62,11 +65,19 @@ const router = createBrowserRouter([
             },
             {
                 path: '/courses/basic-eng-vocab/everyday-word/section/:sectionNumber',
-                element: <DynamicSectionDetail />
+                element: <ContentShield>
+                    <PrivateRoutes>
+                        <DynamicSectionDetail />
+                    </PrivateRoutes>
+                </ContentShield>
             },
             {
                 path: '/courses/basic-eng-vocab/everyday-word/extra-section/:sectionNumber',
-                element: <DynamicSectionDetail />
+                element: <ContentShield>
+                    <PrivateRoutes>
+                        <DynamicSectionDetail />
+                    </PrivateRoutes>
+                </ContentShield>
             },
 
             // 3. Category Catalog View (e.g. /courses/basic-eng-vocab, /courses/cse-courses)
@@ -79,17 +90,27 @@ const router = createBrowserRouter([
             // Lists all sections/modules of a course
             {
                 path: '/courses/:category/:slug',
-                element: <DynamicCourseSections />
+                element: <ContentShield>
+                    <DynamicCourseSections></DynamicCourseSections>
+                </ContentShield>
             },
             // Detail view of a standard section
             {
                 path: '/courses/:category/:slug/section/:sectionNumber',
-                element: <DynamicSectionDetail />
+                element: <ContentShield>
+                    <PrivateRoutes>
+                        <DynamicSectionDetail />
+                    </PrivateRoutes>
+                </ContentShield>
             },
             // Detail view of an extra/supplementary vault section
             {
                 path: '/courses/:category/:slug/extra-section/:sectionNumber',
-                element: <DynamicSectionDetail />
+                element: <ContentShield>
+                    <PrivateRoutes>
+                        <DynamicSectionDetail />
+                    </PrivateRoutes>
+                </ContentShield>
             },
 
             // 5. Admin Protected Routes
