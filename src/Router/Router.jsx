@@ -20,6 +20,7 @@ import DocumentPage from "../component/DocumentPage";
 import MyCourses from "../component/MyCourses";
 import SectionEditor from "../component/SectionEditor";
 import ContentShield from "../component/ContentShield";
+import PdfWorkspacePage from "../component/PdfWorkspacePage";
 
 const router = createBrowserRouter([
     {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
             {
                 path: '/registration',
                 element: <Registration />
+            },
+            {
+                path:'/presentation',
+                Component: PdfWorkspacePage
             },
             {
                 path: '/payment',

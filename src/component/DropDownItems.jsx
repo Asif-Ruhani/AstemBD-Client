@@ -529,10 +529,9 @@ export const dropdownData = [
           {
             id: '2-I-b',
             title: 'Daily Conversational Grammar',
-            getApi: '/all-courses',
-            editApi: '/all-courses-edit',
-            filterQuery: { category: 'spoken-grammar' },
-            isCourseCollection: true,
+            getApi: '/english-vocab-sections',
+            editApi: '/english-vocab-details',
+            filterQuery: { status: 'regular' }
           },
           {
             id: '2-I-c',
