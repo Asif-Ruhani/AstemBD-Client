@@ -280,7 +280,7 @@ const Navbar = () => {
     { name: 'HSC', path: '/courses/hsc-courses' },
     { name: 'SSC', path: '/courses/ssc-courses' },
     { name: 'My Courses', path: '/my-courses' },
-    { name: 'presentation', path: '/Presentation' },
+    { name: 'Presentation', path: '/presentation' },
     { name: 'Data Manipulation', path: '/data-manipulation', adminOnly: true },
     { name: 'Payment History', path: '/payment-history', adminOnly: true },
     { name: 'Users', path: '/users', adminOnly: true },

@@ -1,7 +1,8 @@
 // src/pdfWorker.js
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Official CDN theke worker load kora (CORS free & zero-config)
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+// Direct local bundled worker URL set kora
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 export default pdfjsLib;
