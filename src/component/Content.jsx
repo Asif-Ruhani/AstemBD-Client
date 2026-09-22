@@ -189,7 +189,7 @@ const Content = () => {
                   </div>
 
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 leading-relaxed mb-6 line-clamp-3 text-center italic">
-                    "{card.desc || card.description}"
+                    {card.desc || card.description}
                   </p>
 
                   <div className="mt-auto space-y-2.5 pt-4 border-t border-slate-100 dark:border-zinc-800/80">
